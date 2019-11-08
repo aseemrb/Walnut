@@ -36,7 +36,10 @@ import Automata.NumberSystem;
  * and parse and dispatch the command appropriately.
  * @author Hamoon
  */
-public class prover {
+public class Prover {
+	static String COLOR_RESET = "\u001B[0m";
+	static String COLOR_PROMPT = "\u001B[32m";
+	static String PROMPT = "\n" + COLOR_PROMPT + "Walnut:> " + COLOR_RESET;
 	static String REGEXP_FOR_THE_LIST_OF_COMMANDS = "(eval|def|macro|reg|load|exit)";
 	static String REGEXP_FOR_EMPTY_COMMAND = "^\\s*(;|::|:)\\s*$";
 	/**
@@ -137,6 +140,7 @@ public class prover {
 		try{
 		    StringBuffer buffer = new StringBuffer();
 			while(true) {
+				System.out.print(PROMPT);
 				String s = in.readLine();
 				if(s == null) {
 					return true;

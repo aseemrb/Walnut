@@ -1,0 +1,4 @@
+def successor "?msd_nsname x < y & (Az (z <= x) | (z >= y))":
+eval base "?msd_nsname Ax,z ((x + 0 = z) <=> (x = z))":
+
+eval induction "?msd_nsname Ax,y,z,u,v ($successor(y, u) & $successor(z, v)) => ((x + y = z) <=> (x + u = v))":

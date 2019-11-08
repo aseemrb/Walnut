@@ -28,26 +28,29 @@ import Main.Predicate;
 import Main.UtilityMethods;
 
 public class ParseMethods {
+	static int ALPHABET_SET = 12;
+	static int ALPHABET_NUMBER_SYSTEM = 2;
+	static int STATE_DECLARATION_STATE_NAME = 1;
+	static int STATE_DECLARATION_OUTPUT = 2;
+	static int TRANSITION_INPUT = 1;
+	static int TRANSITION_DESTINATION = 6;
+
 	static String REGEXP_FOR_TRUE_FALSE = "^\\s*(true|false)\\s*$";
 	static Pattern PATTERN_FOR_TRUE_FALSE = Pattern.compile(REGEXP_FOR_TRUE_FALSE);
 
-	static String REGEXP_FOR_ALPHABET_DECLARATION = "^(\\s*((((msd|lsd)_(\\d+|\\w+))|((msd|lsd)(\\d+|\\w+))|(msd|lsd)|(\\d+|\\w+))|(\\{\\s*(\\+|\\-)?\\s*\\d+\\s*(\\s*,\\s*(\\+|\\-)?\\s*\\d+\\s*)*\\}))\\s*)+\\s*$";
+	// static String REGEXP_FOR_ALPHABET_DECLARATION = "^(\\s*((((msd|lsd)_(\\d+|\\w+))|((msd|lsd)(\\d+|\\w+))|(msd|lsd)|(\\d+|\\w+))|(\\{\\s*(\\+|\\-)?\\s*\\d+\\s*(\\s*,\\s*(\\+|\\-)?\\s*\\d+\\s*)*\\}))\\s*)+\\s*$";
 
 	static String NEXT_ALPHABET_TOKEN = "\\G\\s*((((msd|lsd)_(\\d+|\\w+))|((msd|lsd)(\\d+|\\w+))|(msd|lsd)|(\\d+|\\w+))|(\\{\\s*((\\+|\\-)?\\s*\\d+\\s*(\\s*,\\s*(\\+|\\-)?\\s*\\d+)*)\\s*\\}))\\s*";
 	static Pattern PATTERN_NEXT_ALPHABET_TOKEN = Pattern.compile(NEXT_ALPHABET_TOKEN);
-	static int ALPHABET_SET = 12;
-	static int ALPHABET_NUMBER_SYSTEM = 2;
 
 	static String ELEMENT = "\\G\\s*,?\\s*(((\\+|\\-)?\\s*\\d+)|\\*)";
 	static Pattern PATTERN_ELEMENT = Pattern.compile(ELEMENT);
 
 	static String REGEXP_FOR_STATE_DECLARATION = "^\\s*(\\d+)\\s+((\\+|\\-)?\\s*\\d+)\\s*$";
 	static Pattern PATTERN_FOR_STATE_DECLARATION = Pattern.compile(REGEXP_FOR_STATE_DECLARATION);
-	static int STATE_DECLARATION_STATE_NAME = 1,STATE_DECLARATION_OUTPUT = 2;
 
 	static String REGEXP_FOR_TRANSITION = "^\\s*((((\\+|\\-)?\\s*\\d+\\s*)|(\\s*\\*\\s*))+)\\s*\\->\\s*((\\d+\\s*)+)\\s*$";
 	static Pattern PATTERN_FOR_TRANSITION = Pattern.compile(REGEXP_FOR_TRANSITION);
-	static int TRANSITION_INPUT = 1,TRANSITION_DESTINATION = 6;
 
 	public static boolean parseTrueFalse(String s,boolean[] singleton){
 		Matcher m = PATTERN_FOR_TRUE_FALSE.matcher(s);
@@ -57,9 +60,10 @@ public class ParseMethods {
 		}
 		return false;
 	}
+
 	public static boolean parseAlphabetDeclaration(
 		String s,List<List<Integer>> A,
-		List<NumberSystem> bases) throws Exception{
+		List<NumberSystem> bases) throws Exception {
 		//if(!s.matches(REGEXP_FOR_ALPHABET_DECLARATION))return false;
 		Matcher m = PATTERN_NEXT_ALPHABET_TOKEN.matcher(s);
 		int index = 0;
@@ -70,40 +74,64 @@ public class ParseMethods {
 				A.add(list);
 				bases.add(null);
 			}
-			if(m.group(ALPHABET_NUMBER_SYSTEM) != null){
+
+			if(m.group(ALPHABET_NUMBER_SYSTEM) != null) {
 				String ns = "msd_2";
-				if(m.group(3) != null)ns = m.group(3);
-				if(m.group(6) != null)ns = "msd_"+m.group(6);
-				if(m.group(9) != null)ns =  m.group(9)+"_2";
-				if(m.group(10) != null)ns = "msd_"+m.group(10);
+				if(m.group(3) != null) {
+					ns = m.group(3);
+				}
+
+				if(m.group(6) != null) {
+					ns = "msd_" + m.group(6);
+				}
+
+				if(m.group(9) != null) {
+					ns =  m.group(9) + "_2";
+				}
+
+				if(m.group(10) != null) {
+					ns = "msd_" + m.group(10);
+				}
+
 				HashMap<String,NumberSystem> H = Predicate.get_number_system_Hash();
-				if(!H.containsKey(ns)){
+				if(!H.containsKey(ns)) {
 					try {
 						H.put(ns, new NumberSystem(ns));
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
-						throw new Exception(e.getMessage()+UtilityMethods.newLine()+"\tnumber system " + ns + " does not exists");
+						throw new Exception(
+							e.getMessage() + UtilityMethods.newLine() +
+							"\tNumber system " + ns + " does not exist.");
 					}
 				}
+
 				A.add(H.get(ns).getAlphabet());
 				bases.add(H.get(ns));
 			}
+
 			index = m.end();
 		}
-		if(index < s.length())
+
+		if(index < s.length()) {
 			return false;
+		}
 		return true;
 	}
-	public static boolean parseStateDeclaration(String s, int[] pair){
+	public static boolean parseStateDeclaration(String s, int[] pair) {
 		Matcher m = PATTERN_FOR_STATE_DECLARATION.matcher(s);
 		if(m.find()){
 			pair[0] = UtilityMethods.parseInt(m.group(STATE_DECLARATION_STATE_NAME));
 			pair[1] = UtilityMethods.parseInt(m.group(STATE_DECLARATION_OUTPUT));
 			return true;
 		}
+
 		return false;
 	}
-	public static boolean parseTransition(String s,List<Integer> input,List<Integer> dest){
+
+	public static boolean parseTransition(
+		String s,
+		List<Integer> input,
+		List<Integer> dest) {
 		Matcher m = PATTERN_FOR_TRANSITION.matcher(s);
 		if(m.find()){
 			parseList(m.group(TRANSITION_INPUT),input);

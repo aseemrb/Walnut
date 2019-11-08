@@ -1,5 +1,5 @@
 /*	 Copyright 2016 Hamoon Mousavi
- * 
+ *
  * 	 This file is part of Walnut.
  *
  *   Walnut is free software: you can redistribute it and/or modify
@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 import Automata.Automaton;
 
 public class IntegrationTest {
-	String directoryAddress = "Test Results/Integreation Tests/"; 
+	String directoryAddress = "Test Results/Integreation Tests/";
 	String performanceTestFileName = "performance_test.txt";
 	List<TestCase> testCases;//list of test cases
 	List<String> L;//list of commands
@@ -60,29 +60,29 @@ public class IntegrationTest {
 			out.write("msd_2\n0 1\n0 -> 0\n1 -> 1\n1 0\n0 -> 0\n1 -> 0\n");
 			out.close();
 
-			prover.dispatch("reg endsIn2Zeros lsd_2 \"(0|1)*00\";");
-			prover.dispatch("reg startsWith2Zeros msd_2 \"00(0|1)*\";");
-			prover.dispatchForIntegrationTest("def thueeq \"T[x]=T[y]\";");
-			prover.dispatchForIntegrationTest("def func \"(?msd_3 c < 5) & (a = b+1) & (?msd_10 e = 17)\";");
-			prover.dispatchForIntegrationTest("def thuefactoreq \"Ak (k < n) => T[i+k] = T[j+k]\";");
-			prover.dispatchForIntegrationTest("def thueuniquepref \"Aj (j > 0 & j < n-m) => ~$thuefactoreq(i,i+j,m)\";");
-			prover.dispatchForIntegrationTest("def thueuniquesuff \"Aj (j > 0 & j < n-m) => ~$thuefactoreq(i+n-m,i+n-m-j,m)\";");
-			prover.dispatchForIntegrationTest("def thuepriv \"(n >= 1) & Am (m <= n & m >= 1) => (Ep (p <= m & p >= 1) & $thueuniquepref(i,p,m) & $thueuniquesuff(i+n-m,p,m) & $thuefactoreq(i, i+n-p, p))\";");
-			prover.dispatchForIntegrationTest("def fibmr \"?msd_fib (i<=j)&(j<n)&Ep ((p>=1)&(2*p+i<=j+1)&(Ak (k+i+p<=j) => (F[i+k]=F[i+k+p]))&((i>=1) => (Aq ((1<=q)&(q<=p)) =>"
+			Prover.dispatch("reg endsIn2Zeros lsd_2 \"(0|1)*00\";");
+			Prover.dispatch("reg startsWith2Zeros msd_2 \"00(0|1)*\";");
+			Prover.dispatchForIntegrationTest("def thueeq \"T[x]=T[y]\";");
+			Prover.dispatchForIntegrationTest("def func \"(?msd_3 c < 5) & (a = b+1) & (?msd_10 e = 17)\";");
+			Prover.dispatchForIntegrationTest("def thuefactoreq \"Ak (k < n) => T[i+k] = T[j+k]\";");
+			Prover.dispatchForIntegrationTest("def thueuniquepref \"Aj (j > 0 & j < n-m) => ~$thuefactoreq(i,i+j,m)\";");
+			Prover.dispatchForIntegrationTest("def thueuniquesuff \"Aj (j > 0 & j < n-m) => ~$thuefactoreq(i+n-m,i+n-m-j,m)\";");
+			Prover.dispatchForIntegrationTest("def thuepriv \"(n >= 1) & Am (m <= n & m >= 1) => (Ep (p <= m & p >= 1) & $thueuniquepref(i,p,m) & $thueuniquesuff(i+n-m,p,m) & $thuefactoreq(i, i+n-p, p))\";");
+			Prover.dispatchForIntegrationTest("def fibmr \"?msd_fib (i<=j)&(j<n)&Ep ((p>=1)&(2*p+i<=j+1)&(Ak (k+i+p<=j) => (F[i+k]=F[i+k+p]))&((i>=1) => (Aq ((1<=q)&(q<=p)) =>"
 											+ "(El (l+i+q<=j+1)&(F[i+l-1]!=F[i+l+q-1]))))&((j+2<=n) => (Ar ((1<=r)&(r<=p)) =>"
 											+ "(Em (m+r+i<=j+1)&(F[i+m]!=F[i+m+r])))))\";");
-			
-			prover.dispatchForIntegrationTest("load thue_tests.txt;");
-			prover.dispatchForIntegrationTest("load rudin_shapiro_tests.txt;");
-			prover.dispatchForIntegrationTest("load rudin_shapiro_trapezoidal_tests.txt;");
-			prover.dispatchForIntegrationTest("load paperfolding_tests.txt;");
-			prover.dispatchForIntegrationTest("load paperfolding_trapezoidal_tests.txt;");
-			prover.dispatchForIntegrationTest("load period_doubling_tests.txt;");
-			prover.dispatchForIntegrationTest("load fibonacci_tests.txt;");
-			
-			prover.dispatchForIntegrationTest("macro palindrome \"?%0 Ak (k<n) => %1[i+k] = %1[i+n-1-k]\";");
-			//prover.dispatchForIntegrationTest("macro factoreq \"%0 Ak (%4<n) => %1[%2+k]=%1[%3+k]\"");
-			prover.dispatchForIntegrationTest("macro border \"?%0 m>=1 & m<=n & $%1_factoreq(i,i+n-m,m)\";");
+
+			Prover.dispatchForIntegrationTest("load thue_tests.txt;");
+			Prover.dispatchForIntegrationTest("load rudin_shapiro_tests.txt;");
+			Prover.dispatchForIntegrationTest("load rudin_shapiro_trapezoidal_tests.txt;");
+			Prover.dispatchForIntegrationTest("load paperfolding_tests.txt;");
+			Prover.dispatchForIntegrationTest("load paperfolding_trapezoidal_tests.txt;");
+			Prover.dispatchForIntegrationTest("load period_doubling_tests.txt;");
+			Prover.dispatchForIntegrationTest("load fibonacci_tests.txt;");
+
+			Prover.dispatchForIntegrationTest("macro palindrome \"?%0 Ak (k<n) => %1[i+k] = %1[i+n-1-k]\";");
+			//Prover.dispatchForIntegrationTest("macro factoreq \"%0 Ak (%4<n) => %1[%2+k]=%1[%3+k]\"");
+			Prover.dispatchForIntegrationTest("macro border \"?%0 m>=1 & m<=n & $%1_factoreq(i,i+n-m,m)\";");
 		} catch (FileNotFoundException e2) {
 			e2.printStackTrace();
 		} catch (UnsupportedEncodingException e2) {
@@ -133,7 +133,7 @@ public class IntegrationTest {
 		L.add("eval test30 \" a =6 ^ a<7\";");//a = 0,1,2,3,4,5
 		L.add("eval test31 \"?msd_fib a =6 ^ a<7\";");//a = 0,1,2,3,4,5
 		L.add("eval test32 \" a <=5 <=> ~(a>2)\";");//a = 0,1,2,6,7,8,...
-		L.add("eval test33 \"?msd_fib a <=5 <=> ~(a>2)\";");//a = 0,1,2,6,7,8,...		
+		L.add("eval test33 \"?msd_fib a <=5 <=> ~(a>2)\";");//a = 0,1,2,6,7,8,...
 		L.add("eval test34 \"?msd_fib a <=b & a>=b\";");//a=b
 		L.add("eval test35 \"?lsd_3 a <=b & a>=b\";");//a=b
 		L.add("eval test36 \"?msd_fib a <=a+1\";");
@@ -144,26 +144,26 @@ public class IntegrationTest {
 		L.add("eval test41 \"E a , b, c ,d b = 12 & e =a+2*b-c*3+b-a+d/2-3-2+5*2-8/4 & c <6 & d = 11 & c >= 5\";");//e = 29
 		L.add("eval test42 \"?lsd_fib E b, c b = 12 & e =2*b-c/3+b-1 & c <20 & c >= 19\";");//e = 29
 		L.add("eval test43 \"E b, c ,d b = 12 & a+2*b-c*3+b-a+d/2-3-2+5*2-8/4=a & c <6 & d = 11 & c >= 5\";");//a = 29
-		
+
 		L.add("eval test44 \"d = 20 & (?msd_fib b = 3) & a = 33 & (?msd_fib c = 4)\";");
 		L.add("eval test45 \"Ea d = 20 & (?msd_fib b = 3) & a = 33 & (?msd_fib c = 4)\";");
 		L.add("eval test46 \"Ed d = 20 & (?msd_fib b = 3) & a = 33 & (?msd_fib c = 4)\";");
 		L.add("eval test47 \"Ed,a d = 20 & (?msd_fib b = 3) & a = 33 & (?msd_fib c = 4)\";");
 		L.add("eval test48 \"Ea,d,c d = 20 & (?msd_fib b = 2) & a = 33 & (?msd_fib c = 4)\";");
 		L.add("eval test49 \"Eb,d,a d = 20 & (?msd_fib b = 2) & a = 33 & (?msd_fib c = 4)\";");
-		
+
 		L.add("eval test50 \"?lsd_2 d = 20 & (?lsd_fib b = 3) & a = 33 & (?lsd_fib c = 4)\";");
 		L.add("eval test51 \"?lsd_2 Ea d = 20 & (?lsd_fib b = 3) & a = 33 & (?lsd_fib c = 4)\";");
 		L.add("eval test52 \"?lsd_2 Ed d = 20 & (?lsd_fib b = 3) & a = 33 & (?lsd_fib c = 4)\";");
 		L.add("eval test53 \"?lsd_2 Ed,a d = 20 & (?lsd_fib b = 3) & a = 33 & (?lsd_fib c = 4)\";");
 		L.add("eval test54 \"?lsd_2 Ea,d,c d = 20 & (?lsd_fib b = 2) & a = 33 & (?lsd_fib c = 4)\";");
 		L.add("eval test55 \"?lsd_2 Eb,d,a d = 20 & (?lsd_fib b = 2) & a = 33 & (?lsd_fib c = 4)\";");
-		
+
 		L.add("eval test56 \"~( b != 6 | ?msd_fib a != 17)\";");
 		L.add("eval test57 \"~( b != 6 | ?lsd_fib a != 17)\";");
 		L.add("eval test58 \"Eb ( b = 6 & ?lsd_fib a = 17)\";");
 		L.add("eval test59 \"Ea ( b = 6 & ?lsd_fib a = 17)\";");
-		
+
 		L.add("eval test60 \"Ed (?msd_fib Eb (a = b-2) & b > 4 & b <= 6) & ( Ec (d = c-2) & c > 4 & c <= 6)\";");
 		L.add("eval test61 \"?lsd_2 Ea (Eb (a = b-2) & b > 4 & b <= 6) & (?lsd_fib Ec (d = c-2) & c > 4 & c <= 6)\";");
 
@@ -171,7 +171,7 @@ public class IntegrationTest {
 
 		L.add("eval test63 \"?lsd_2 Ea  b = a-2 & a = 8\";");
 		L.add("eval test64 \"Ea ?lsd_2 b = a-2 & a = 8\";");
-		
+
 		L.add("eval test65 \"?lsd_fib Ex,y x < y\";");
 		L.add("eval test66 \"Ex,y,z y = 2*x+1 & y = 2*z\";");
 		L.add("eval test67 \"?lsd_fib Ex,y,z y = 2*x+1 & y = 2*z\";");
@@ -192,20 +192,20 @@ public class IntegrationTest {
 		L.add("eval test81 \"(Ex,y x<y) <=> (z=3)\";");
 		L.add("eval test82 \"(Ex,y x<y) => (z=3)\";");
 		L.add("eval test83 \"~(Ex,y x<y)\";");
-		
+
 		L.add("eval test84 \"(z=3) & (Ex x>x+1)\";");
 		L.add("eval test85 \"(z=3) | (Ex x>x+1)\";");
 		L.add("eval test86 \"(z=3) ^ (Ex x>x+1)\";");
 		L.add("eval test87 \"(z=3) <=> (Ex x>x+1)\";");
 		L.add("eval test88 \"(z=3) => (Ex x>x+1)\";");
 		L.add("eval test89 \"~(Ex x>x+1)\";");
-		
+
 		L.add("eval test90 \"(Ex x>2*x)&(Ex,y x <y-4)\";");
 		L.add("eval test91 \"(Ex x>2*x)|(Ex,y x <y-4)\";");
 		L.add("eval test92 \"(Ex x>2*x)^(Ex,y x <y-4)\";");
 		L.add("eval test93 \"(Ex x>2*x)<=>(Ex,y x <y-4)\";");
 		L.add("eval test94 \"(Ex x>2*x)=>(Ex,y x <y-4)\";");
-		
+
 		L.add("eval test95 \"(Ex,y x <=y)&(Ex x=2 & x = 3)\";");
 		L.add("eval test96 \"(Ex,y x <=y)|(Ex x=2 & x = 3)\";");
 		L.add("eval test97 \"(Ex,y x <=y)^(Ex x=2 & x = 3)\";");
@@ -217,13 +217,13 @@ public class IntegrationTest {
 		L.add("eval test102 \"(Ex 9 = 3*x )^(Ex x = 2 | x = 3)\";");
 		L.add("eval test103 \"(Ex 9 = 3*x )<=>(Ex x = 2 | x = 3)\";");
 		L.add("eval test104 \"(Ex 9 = 3*x )=>(Ex x = 2 | x = 3)\";");
-		
+
 		L.add("eval test105 \"~(Ex 9 = 3*x )&~(Ex x = 2 | x = 3)\";");
 		L.add("eval test106 \"~(Ex 9 = 3*x )|~(Ex x = 2 | x = 3)\";");
 		L.add("eval test107 \"~(Ex 9 = 3*x )^~(Ex x = 2 | x = 3)\";");
 		L.add("eval test108 \"~(Ex 9 = 3*x )<=>~(Ex x = 2 | x = 3)\";");
 		L.add("eval test109 \"~(Ex 9 = 3*x )=>~(Ex x = 2 | x = 3)\";");
-		
+
 		L.add("eval test110 \"?lsd_fib Eb a = b & b = 3\";");
 		L.add("eval test111 \"?lsd_fib Eb b != a & b = 3\";");
 		L.add("eval test112 \"?lsd_fib Eb a < b & b = 4\";");
@@ -252,13 +252,13 @@ public class IntegrationTest {
 		L.add("eval test131 \" ~`~``~~`~(a=3)\";");
 		L.add("eval test132 \"?msd_fib `~``~~`~(a=3)\";");
 		L.add("eval test133 \"?msd_fib ~`~``~~`~(a=3)\";");
-		
+
 		L.add("eval test134 \"Ax  y < x+4\";");
 		L.add("eval test135 \"?lsd_fib Ax  y < x+5\";");
 		L.add("eval test136 \"Ax  y != 2*x+1\";");
 		L.add("eval test137 \"?lsd_2 Au,v  (x != 2*u+1) & (?lsd_3 y != 3*v+2)\";");
 		L.add("eval test138 \"Au,v  (x != 2*u+1) & (?msd_3 y != 3*v+2)\";");
-		
+
 		L.add("reg test139 {0,1} \"100*\";");
 		L.add("reg     test140   msd_2 \"100*\";");
 		L.add("reg test141 {  0  ,   1   ,   2  }  \"100*\";");
@@ -272,11 +272,11 @@ public class IntegrationTest {
 		L.add("reg test149      lsd  \"100*270*\";");
 		L.add("reg test150      lsd  \"100*(271)*\";");
 		L.add("reg test151      lsd_3  \"100*(27)?1*\";");
-		L.add("reg test152 3 \"100*2?7?1*\";"); 
+		L.add("reg test152 3 \"100*2?7?1*\";");
 		L.add("reg test153 {0,4,6,7} \".[5-6]*[3-6]\";");
 		L.add("reg test154 msd_5 \".[5-9]*[8-9].\";");
 		L.add("reg test155 msd_5 \".[4-9]+.\";");
-		
+
 		L.add("reg test156 \"T[a]=1\";"); //error: invalid use of reg command
 		L.add("eval test157 \"T[a] = T[2*a]\";");
 		L.add("eval test158 \"T[a] <= @2\";");
@@ -302,7 +302,7 @@ public class IntegrationTest {
 		L.add("eval test178 \"?lsd_2 n > 0 & Ef,i i >= 1 & $endsIn2Zeros(i) & $endsIn2Zeros(n) & (Ak k < n => PF[f][i+k] = PF[f][i+k+n])\";");
 		L.add("eval test179 \"n > 0 & Ef,i i >= 1 & $startsWith2Zeros(i) & $startsWith2Zeros(n) & (Ak k < n => PFmsd[f][i+k] = PFmsd[f][i+k+n])\";");//squares
 		L.add("eval test180 \"?lsd_2 n > 0 & Ef,i i >= 1 & $endsIn2Zeros(i) & $endsIn2Zeros(n) & (Ak k < 2*n => PF[f][i+k] = PF[f][i+k+n])\";");//cubes
-		
+
 		L.add("eval test181 \"Ey,w $func(z,x,y,w)\";");
 		L.add("eval test182 \"Ez,x,w $func(z,x,y,w)\";");
 		L.add("eval test183 \"Ex,y,z $func(z,x,y,w)\";");
@@ -318,7 +318,7 @@ public class IntegrationTest {
 		L.add("eval test193 \"Ez,w,x $func(z,x,?msd_3 y+2,w)\";");
 		L.add("eval test194 \"Ez,w,x $func(z,x,?msd_3 y-1,w)\";");
 		L.add("eval test195 \"Ez,x,y $func(z,x,y,?msd_10 a+1)\";");
-		
+
 		L.add("eval test196 \"$thueeq(x,y)\";");
 		L.add("eval test197 \"$thueeq(x,x)\";");
 		L.add("eval test198 \"Ax $thueeq(x,x)\";");
@@ -333,7 +333,7 @@ public class IntegrationTest {
 		L.add("eval test207 \"?msd_17 a=37\";");
 		L.add("eval test208 \"?msd_17 a=b\";");
 		L.add("eval test209 \"?msd_17 a=b+1\";");
-		
+
 		L.add("eval test210 \"Ej Ai ((i<n) => T[j+i] = T[j+n+i])\";");
 		L.add("eval test211 \"Ei Aj (j < n) => (T[i+j] = T[i+n-1-j])\";");
 		L.add("eval test212 \"Ej Ai ((i<=n) => T[j+i] = T[j+n+i])\";");
@@ -357,7 +357,7 @@ public class IntegrationTest {
 		L.add("eval test230 \"Ei At ((t<n) => ((T[i+t]=T[i+t+n]) & (T[i+t]=T[i+3*n-1-t])))\";");
 		L.add("eval test231 \"?msd_fib Ei Ej (j=i+2*n) & (At (t<n) =>(R[i+t]=R[i+t+n])) & (At (t<n) => (R[j+t]=R[j-1-t]))\";");
 		L.add("eval test232 \"Ei $thuepriv(i,n)\";");
-		
+
 		L.add("eval test233 \"(m<=n) & (Ek (k+m<=n) & $thue_factoreq(i,j+k,m))\";");
 		L.add("eval test234 \"$thue_in(m,1,n) & $thue_factoreq(i,i+n-m,m)\";");
 		L.add("eval test235 \"Am $thue_in(m,1,n) => (Ej $thue_subs(j,i,1,m) & $thue_pal(j,i+m-j) & ~$thue_occurs(j,i,i+m-j,m-1))\";");
@@ -378,13 +378,13 @@ public class IntegrationTest {
 		L.add("eval test250 \"(n<=1) | (Ep Eq (n=p+q) & $thue_minunrepsuf(j,n,p) & $thue_minrt(j,n,q))\";");
 		L.add("eval test251 \"(n<=1) | (Ep Eq (n=p+q) & $thue_minunrepsuf(j,n,p) & $thue_minrt2(j,n,q))\";");
 		L.add("eval test252 \"Em (m+2 <= n) & Ej Ek ($thue_subs(j,i+1,m,n-2) & $thue_subs(k,i+1,m,n-2) & $thue_pal(j,m) & $thue_factoreq(j,k,m) & (T[j-1]=T[j+m]) & (T[k-1]=T[k+m]) & (T[j-1] != T[k-1]))\";");
-		L.add("eval test253 \"Em (m >= 2) & (Ej Ek ($thue_subs(j,i,m,n) & $thue_subs(k,i,m,n) & $thue_pal(j,m) & $thue_pal(k,m) & $thue_factoreq(j+1,k+1,m-2) & T[j]!=T[k]))\";");	
+		L.add("eval test253 \"Em (m >= 2) & (Ej Ek ($thue_subs(j,i,m,n) & $thue_subs(k,i,m,n) & $thue_pal(j,m) & $thue_pal(k,m) & $thue_factoreq(j+1,k+1,m-2) & T[j]!=T[k]))\";");
 		L.add("eval test254 \"Ei $thue_rich(i,n)\";");
 		L.add("eval test255 \"Ei $thue_priv(i,n)\";");
 		L.add("eval test256 \"Ei $thue_maxpal(i,n)\";");
 		L.add("eval test257 \"Ej $thue_trap(j,n)\";");
 		L.add("eval test258 \"Ej ~$thue_unbal(j,n)\";");
-		
+
 		L.add("eval test259 \"Ak (k<n) => RS[i+k]=RS[j+k]\";");
 		L.add("eval test260 \"Ak (k<n) => RS[i+k] = RS[i+n-1-k]\";");
 		L.add("eval test261 \"(m<=n) & (Ek (k+m<=n) & $rudin_factoreq(i,j+k,m))\";");
@@ -409,7 +409,7 @@ public class IntegrationTest {
 		L.add("eval test280 \"Em (m+2 <= n) & Ej Ek ($rudin_subs(j,i+1,m,n-2) & $rudin_subs(k,i+1,m,n-2) & $rudin_pal(j,m) & $rudin_factoreq(j,k,m) & (RS[j-1]=RS[j+m]) & (RS[k-1]=RS[k+m]) & (RS[j-1] != RS[k-1]))\";");
 		L.add("eval test281 \"Em (m >= 2) & (Ej Ek ($rudin_subs(j,i,m,n) & $rudin_subs(k,i,m,n) & $rudin_pal(j,m) & $rudin_pal(k,m) & $rudin_factoreq(j+1,k+1,m-2) & RS[j]!=RS[k]))\";");
 		L.add("eval test282 \"Ej ~$rudin_unbal(j,n)\";");
-		
+
 		L.add("eval test283 \"?lsd_2 (j<=i) & (i+m<=j+n)\";");
 		L.add("eval test284 \"?lsd_2 Ak (k<n) => RS[i+k]=RS[j+k]\";");
 		L.add("eval test285 \"?lsd_2 Ak (k<n) => RS[i+k] = RS[i+n-1-k]\";");
@@ -420,7 +420,7 @@ public class IntegrationTest {
 		L.add("eval test290 \"?lsd_2 $rudin_trapezoid_unrepsuf(j,n,q) & (Ac $rudin_trapezoid_unrepsuf(j,n,c) => (c >= q))\";");
 		L.add("eval test291 \"?lsd_2 (n<=1) | (Ep Eq (n=p+q) & $rudin_trapezoid_minunrepsuf(j,n,p) & $rudin_trapezoid_minrt2(j,n,q))\";");
 		L.add("eval test292 \"?lsd_2 Ej $rudin_trapezoid_trap2(j,n)\";");
-		
+
 		L.add("eval test293 \"Ak (k<n) => P[i+k]=P[j+k]\";");
 		L.add("eval test294 \"Ak (k<n) => P[i+k] = P[i+n-1-k]\";");
 		L.add("eval test295 \"(m<=n) & (Ek (k+m<=n) & $paperfolding_factoreq(i,j+k,m))\";");
@@ -438,7 +438,7 @@ public class IntegrationTest {
 		L.add("eval test307 \"Ei $paperfolding_maxpal(i,n)\";");
 		L.add("eval test308 \"Em (m+2 <= n) & Ej Ek ($paperfolding_subs(j,i+1,m,n-2) & $paperfolding_subs(k,i+1,m,n-2) & $paperfolding_pal(j,m) & $paperfolding_factoreq(j,k,m) & (P[j-1]=P[j+m]) & (P[k-1]=P[k+m]) & (P[j-1] != P[k-1]))\";");
 		L.add("eval test310 \"Ej ~$paperfolding_unbal(j,n)\";");
-		
+
 		L.add("eval test311 \"?lsd_2 (j<=i) & (i+m<=j+n)\";");
 		L.add("eval test312 \"?lsd_2 Ak (k<n) => PR[i+k]=PR[j+k]\";");
 		L.add("eval test313 \"?lsd_2 Ak (k<n) => PR[i+k] = PR[i+n-1-k]\";");
@@ -449,7 +449,7 @@ public class IntegrationTest {
 		L.add("eval test318 \"?lsd_2 $paperfolding_trapezoidal_unrepsuf(j,n,q) & (Ac $paperfolding_trapezoidal_unrepsuf(j,n,c) => (c >= q))\";");
 		L.add("eval test319 \"?lsd_2 (n<=1) | (Ep Eq (n=p+q) & $paperfolding_trapezoidal_minunrepsuf(j,n,p) & $paperfolding_trapezoidal_minrt2(j,n,q))\";");
 		L.add("eval test320 \"?lsd_2 Ej $paperfolding_trapezoidal_trap2(j,n)\";");
-		
+
 		L.add("eval test320 \"Ak (k<n) => PD[i+k]=PD[j+k]\";");
 		L.add("eval test321 \"Ak (k<n) => PD[i+k] = PD[i+n-1-k]\";");
 		L.add("eval test322 \"(m<=n) & (Ek (k+m<=n) & $period_doubling_factoreq(i,j+k,m))\";");
@@ -478,7 +478,7 @@ public class IntegrationTest {
 		L.add("eval test345 \"Em (m+2 <= n) & Ej Ek ($period_doubling_subs(j,i+1,m,n-2) & $period_doubling_subs(k,i+1,m,n-2) & $period_doubling_pal(j,m) & $period_doubling_factoreq(j,k,m) & (PD[j-1]=PD[j+m]) & (PD[k-1]=PD[k+m]) & (PD[j-1] != PD[k-1]))\";");
 		L.add("eval test346 \"Em (m >= 2) & (Ej Ek ($period_doubling_subs(j,i,m,n) & $period_doubling_subs(k,i,m,n) & $period_doubling_pal(j,m) & $period_doubling_pal(k,m) & $period_doubling_factoreq(j+1,k+1,m-2) & T[j]!=T[k]))\";");
 		L.add("eval test347 \"Ej ~$period_doubling_unbal(j,n)\";");
-		
+
 		L.add("eval test348 \"?msd_fib Ak (k<n) => F[i+k]=F[j+k]\";");
 		L.add("eval test349 \"?msd_fib Ak (k<n) => F[i+k] = F[i+n-1-k]\";");
 		L.add("eval test350 \"?msd_fib (m<=n) & (Ek (k+m<=n) & $fibonacci_factoreq(i,j+k,m))\";");
@@ -504,7 +504,7 @@ public class IntegrationTest {
 		L.add("eval test370 \"Em (m >= 2) & (Ej Ek ($fibonacci_subs(j,i,m,n) & $fibonacci_subs(k,i,m,n) & $fibonacci_pal(j,m) & $fibonacci_pal(k,m) & $fibonacci_factoreq(j+1,k+1,m-2) & F[j]!=F[k]))\";");
 		L.add("eval test371 \"?msd_fib Ej ~$fibonacci_unbal(j,n)\";");
 		L.add("eval test372 \"?msd_fib Ej En ~$fibonacci_unbal(j,n)\";");
-		
+
 		// matrix calculation tests
 		L.add("eval test373 n j \"i=j+1\";");// error: incidence matrices for the variable n cannot be calculated, because n is not a free variable. : eval test373 n j "i=j+1";
 		L.add("eval test374 i j \"i=j+1\";");
@@ -517,19 +517,19 @@ public class IntegrationTest {
 		L.add("eval test381 n23 \"En23 n23 = 10\"::");// error
 		L.add("eval test382 n23 \"En23 n23 = 10 & i = 12\"::");//error
 		L.add("eval test383 n23 \"Ei n23 = 10 & i = 12\"::");
-		
+
 		// test macro
 		L.add("eval test384 \"#palindrome(msd_2,T)\";");
 		L.add("eval test385 \"#palindrome(msd_fib,F)\";");
 		L.add("eval test386 \"#palindrome(msd_2,RS)\";");
 		L.add("eval test387 \"#palindrome(lsd_2,RS)\";");
 		L.add("eval test388 \"#palindrome(msd_2,P)\";");
-		L.add("eval test389 \"#border(msd_2,thue)\";");		
-		L.add("eval test391 \"#border(msd_fib,fibonacci)\";");		
-		L.add("eval test392 \"#border(msd_2,rudin)\";");		
-		L.add("eval test393 \"#border(msd_2,paperfolding)\";");		
+		L.add("eval test389 \"#border(msd_2,thue)\";");
+		L.add("eval test391 \"#border(msd_fib,fibonacci)\";");
+		L.add("eval test392 \"#border(msd_2,rudin)\";");
+		L.add("eval test393 \"#border(msd_2,paperfolding)\";");
 
-		
+
 	}
 	public void runPerformanceTest(String name,int numberOfRuns) throws Exception{
 		PrintWriter out = new PrintWriter(new FileOutputStream(new File(directoryAddress+performanceTestFileName), true /* append = true */));
@@ -538,7 +538,7 @@ public class IntegrationTest {
 		out.println("Number of runs: " + numberOfRuns);
 		out.println("Number of testcases: " + L.size());
 		long total = 0;
-		for(int i=0;i!=numberOfRuns;++i){	
+		for(int i=0;i!=numberOfRuns;++i){
 			long runtime = runTestCases();
 			out.println((i+1) + "th run: " + runtime + "ms");
 			total += runtime;
@@ -574,26 +574,26 @@ public class IntegrationTest {
 			System.out.println("\t\t"+command);
 			try{
 				before = System.currentTimeMillis();
-				TestCase actual = prover.dispatchForIntegrationTest(command);
+				TestCase actual = Prover.dispatchForIntegrationTest(command);
 				after = System.currentTimeMillis();
 				total += (after-before);
-				
+
 				if(!conformMPL(expected.mpl.trim(),actual.mpl.trim())){
 					failedTestsCount++;
 					mplFailedTestsCount++;
 					System.out.println("test " + i + " failed! Actual and expected .mpl files do not conform.");
 					continue;
 				}
-				
+
 				if(!conformDetails(expected.details.trim(),actual.details.trim())){
 					failedTestsCount++;
 					detailsFailedTestsCount++;
 					System.out.println("test " + i + " failed! Actual and expected detailed logs do not conform.");
 					continue;
 				}
-				
-				if((actual.result == null && expected.result != null) || 
-				   (actual.result != null && expected.result == null) || 
+
+				if((actual.result == null && expected.result != null) ||
+				   (actual.result != null && expected.result == null) ||
 				   !actual.result.equals(expected.result)){
 					failedTestsCount++;
 					automataFailedTestsCount++;
@@ -615,13 +615,13 @@ public class IntegrationTest {
 		else{
 			System.out.println(failedTestsCount + " test cases failed!");
 			System.out.println(automataFailedTestsCount + " test cases failed because of resulting automata mistmach!");
-			System.out.println(errorFailedTestsCount + " test cases failed because of error messages mistmach!");			
+			System.out.println(errorFailedTestsCount + " test cases failed because of error messages mistmach!");
 			System.out.println(mplFailedTestsCount + " test cases failed because of mpl mistmach!");
-			System.out.println(detailsFailedTestsCount + " test cases failed because of detailed logs mistmach!");	
+			System.out.println(detailsFailedTestsCount + " test cases failed because of detailed logs mistmach!");
 		}
 		return total;
 	}
-	
+
 	private boolean conformMPL(String expected_mpl,String actual_mpl){
 		if(expected_mpl == null && actual_mpl == null)return true;
 		if(expected_mpl.length() == 0 && actual_mpl.length() == 0) return true;
@@ -631,7 +631,7 @@ public class IntegrationTest {
 		if(expected_mpl.equals(actual_mpl)) return true;
 		return false;
 	}
-	
+
 	private boolean conformDetails(String expected_details,String actual_details){
 		if(expected_details == null && actual_details == null)return true;
 		if(expected_details.length() == 0 && actual_details.length() == 0) return true;
@@ -659,7 +659,7 @@ public class IntegrationTest {
 			if(actual_time.find()){
 				actual = actual_time.group(0);
 			}
-			
+
 			System.out.println("actual:"+ actual+")");
 
 			if(actual.compareTo(expected) != 0){
@@ -671,7 +671,7 @@ public class IntegrationTest {
 		}
 		return true;*/
 	}
-	
+
 	public void loadTestCases() throws Exception{
 		String command;
 		testCases = new ArrayList<TestCase>();
@@ -691,13 +691,13 @@ public class IntegrationTest {
 				while((temp = errorReader.readLine())!= null){
 					if(flag)
 						error.append(UtilityMethods.newLine() + temp);
-					else 
+					else
 						error.append(temp);
 					flag = true;
 				}
 				errorReader.close();
 			}
-			
+
 			if(new File(directoryAddress+"mpl"+Integer.toString(i)+".mpl").isFile()){
 				BufferedReader mplReader = new BufferedReader(new InputStreamReader(new FileInputStream(directoryAddress+"mpl" + Integer.toString(i)+".mpl"), "utf-8"));
 				String temp;
@@ -705,13 +705,13 @@ public class IntegrationTest {
 				while((temp = mplReader.readLine())!= null){
 					if(flag)
 						mpl.append(UtilityMethods.newLine() + temp);
-					else 
+					else
 						mpl.append(temp);
 					flag = true;
 				}
 				mplReader.close();
 			}
-			
+
 			if(new File(directoryAddress+"details"+Integer.toString(i)+".txt").isFile()){
 				BufferedReader detailsReader = new BufferedReader(new InputStreamReader(new FileInputStream(directoryAddress+"details" + Integer.toString(i)+".txt"), "utf-8"));
 				String temp;
@@ -719,13 +719,13 @@ public class IntegrationTest {
 				while((temp = detailsReader.readLine())!= null){
 					if(flag)
 						details.append(UtilityMethods.newLine() + temp);
-					else 
+					else
 						details.append(temp);
 					flag = true;
 				}
 				detailsReader.close();
 			}
-			
+
 			testCases.add(new TestCase(command,M,error.toString(),mpl.toString(),details.toString()));
 		}
 	}
@@ -735,7 +735,7 @@ public class IntegrationTest {
 			System.out.println(command);
 			TestCase test_case = null;
 			try{
-				test_case = prover.dispatchForIntegrationTest(command);
+				test_case = Prover.dispatchForIntegrationTest(command);
 			}
 			catch(Exception e){
 				test_case = new TestCase(command,null,e.getMessage(),"","");

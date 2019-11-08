@@ -126,8 +126,10 @@ public class NumberSystem {
 		 * For example lsd_2 is the complement of msd_2.
 		 */
 		String complementName = (is_msd ? "lsd":"msd")+"_" + base;
-		String addressForTheSetOfAllRepresentations = UtilityMethods.get_address_for_custom_bases() + name + ".txt";
-		String complement_addressForTheSetOfAllRepresentations = UtilityMethods.get_address_for_custom_bases() + complementName + ".txt";
+		String addressForTheSetOfAllRepresentations =
+            UtilityMethods.get_address_for_custom_bases() + name + ".txt";
+		String complement_addressForTheSetOfAllRepresentations =
+            UtilityMethods.get_address_for_custom_bases() + complementName + ".txt";
 		String addressForAddition = UtilityMethods.
 			get_address_for_custom_bases() + name + "_addition.txt";
 		String complement_addressForAddition = UtilityMethods.
@@ -249,13 +251,14 @@ public class NumberSystem {
 		equality.q0 = 0;
 		equality.O.add(1);
 		equality.NS.add(this);equality.NS.add(this);
-		equality.A.add(new ArrayList<Integer>(alphabet));equality.A.add(new ArrayList<Integer>(alphabet));
+		equality.A.add(new ArrayList<Integer>(alphabet));
+        equality.A.add(new ArrayList<Integer>(alphabet));
 		equality.alphabetSize = alphabet.size()*alphabet.size();
 		equality.d.add(new TreeMap<Integer,List<Integer>>());
-		for(int i = 0 ; i < alphabet.size();i++){
+		for(int i = 0 ; i < alphabet.size(); i++) {
 			List<Integer> dest = new ArrayList<Integer>();
 			dest.add(0);
-			equality.d.get(0).put(i*alphabet.size()+i,dest);
+			equality.d.get(0).put(i * alphabet.size() + i, dest);
 		}
 	}
 
@@ -273,9 +276,11 @@ public class NumberSystem {
 		lessThan.q0 = 0;
 		lessThan.O.add(0);lessThan.O.add(1);
 		lessThan.NS.add(this);lessThan.NS.add(this);
-		lessThan.A.add(new ArrayList<Integer>(alphabet));lessThan.A.add(new ArrayList<Integer>(alphabet));
+		lessThan.A.add(new ArrayList<Integer>(alphabet));
+        lessThan.A.add(new ArrayList<Integer>(alphabet));
 		lessThan.alphabetSize = alphabet.size()*alphabet.size();
-		lessThan.d.add(new TreeMap<Integer,List<Integer>>());lessThan.d.add(new TreeMap<Integer,List<Integer>>());
+		lessThan.d.add(new TreeMap<Integer,List<Integer>>());
+        lessThan.d.add(new TreeMap<Integer,List<Integer>>());
 		for(int i = 0; i < alphabet.size();i++){
 			for(int j = 0 ; j < alphabet.size();j++){
 				if(i == j){
@@ -315,10 +320,15 @@ public class NumberSystem {
 		addition.Q = 2;
 		addition.q0 = 0;
 		addition.O.add(1);addition.O.add(0);
-		addition.d.add(new TreeMap<Integer,List<Integer>>());addition.d.add(new TreeMap<Integer,List<Integer>>());
-		addition.NS.add(this);addition.NS.add(this);addition.NS.add(this);
-		addition.A.add(new ArrayList<Integer>(alphabet));addition.A.add(new ArrayList<Integer>(alphabet));addition.A.add(alphabet);
-		addition.alphabetSize = alphabet.size()*alphabet.size()*alphabet.size();
+		addition.d.add(new TreeMap<Integer,List<Integer>>());
+        addition.d.add(new TreeMap<Integer,List<Integer>>());
+		addition.NS.add(this);
+        addition.NS.add(this);
+        addition.NS.add(this);
+		addition.A.add(new ArrayList<Integer>(alphabet));
+        addition.A.add(new ArrayList<Integer>(alphabet));
+        addition.A.add(alphabet);
+		addition.alphabetSize = alphabet.size() * alphabet.size() * alphabet.size();
 		int l = 0;
 		for(int k = 0; k < n;k++){
 			for(int j = 0 ; j < n;j++){
@@ -347,8 +357,10 @@ public class NumberSystem {
 				}
 			}
 		}
-		if(!is_msd)
+
+		if(!is_msd) {
 			addition.reverse(false,null,null);
+        }
 	}
 
 	/**
