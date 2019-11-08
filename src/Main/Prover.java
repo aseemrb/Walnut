@@ -140,11 +140,15 @@ public class Prover {
 		try{
 		    StringBuffer buffer = new StringBuffer();
 			while(true) {
-				System.out.print(PROMPT);
+				if (console) {
+					System.out.print(PROMPT);
+				}
+
 				String s = in.readLine();
 				if(s == null) {
 					return true;
 				}
+
 		    	int index1 = s.indexOf(';');
 		    	int index2 = s.indexOf(':');
 		    	int index;
@@ -159,6 +163,7 @@ public class Prover {
 		    	if((s.length() - 1) > index && s.charAt(index + 1) == ':') {
 		    		index++;
 		    	}
+
 		    	if(index != -1) {
 		    		s = s.substring(0, index + 1);
 		    		buffer.append(s);
@@ -166,12 +171,12 @@ public class Prover {
 		    		if(!console) {
 		    			System.out.println(s);
 		    		}
+
 		    		try {
 		    			if(!dispatch(s)) {
 		    				return false;
 		    			}
-		    		}
-		    		catch(Exception e) {
+		    		} catch(Exception e) {
 		    			System.out.flush();
 		    			System.err.println(e.getMessage()+UtilityMethods.newLine()+"\t: " + s);
 		    			System.err.flush();
