@@ -34,18 +34,44 @@ public class UtilityMethods {
 	static String ADDRESS_FOR_RESULT = "Result/";
 	static String ADDRESS_FOR_CUSTOM_BASES = "Custom Bases/";
 	static String ADDRESS_FOR_TEST_LIBRARY = "Test Library/";
+	static String ADDRESS_FOR_INTEGRATION_TEST_RESULTS = "Test Results/Integreation Tests/";
+
 	public static void setPaths(){
 		String path = System.getProperty("user.dir");
 		if(path.substring(path.length()-3).equals("bin"))
 			dir = "../";
 	}
-	public static String get_address_for_command_files(){return dir+ADDRESS_FOR_COMMAND_FILES;}
-	public static String get_address_for_automata_library(){return dir+ADDRESS_FOR_AUTOMATA_LIBRARY;}
-	public static String get_address_for_macro_library(){return dir+ADDRESS_FOR_MACRO_LIBRARY;}
-	public static String get_address_for_result(){return dir+ADDRESS_FOR_RESULT;}
-	public static String get_address_for_custom_bases(){return dir+ADDRESS_FOR_CUSTOM_BASES;}
-	public static String get_address_for_words_library(){return dir+ADDRESS_FOR_WORDS_LIBRARY;}
-	public static String get_address_for_test_library(){return dir+ADDRESS_FOR_TEST_LIBRARY;}
+
+	public static String get_address_for_command_files() {
+		return dir + ADDRESS_FOR_COMMAND_FILES;
+	}
+
+	public static String get_address_for_automata_library() {
+		return dir + ADDRESS_FOR_AUTOMATA_LIBRARY;
+	}
+
+	public static String get_address_for_macro_library() {
+		return dir + ADDRESS_FOR_MACRO_LIBRARY;
+	}
+
+	public static String get_address_for_result() {
+		return dir + ADDRESS_FOR_RESULT;
+	}
+
+	public static String get_address_for_custom_bases() {
+		return dir + ADDRESS_FOR_CUSTOM_BASES;
+	}
+
+	public static String get_address_for_words_library() {
+		return dir + ADDRESS_FOR_WORDS_LIBRARY;
+	}
+
+	public static String get_address_for_test_library() {
+		return dir + ADDRESS_FOR_TEST_LIBRARY;
+	}
+	public static String get_address_for_integration_test_results() {
+		return dir + ADDRESS_FOR_INTEGRATION_TEST_RESULTS;
+	}
 
 
 	public static String newLineString =  System.lineSeparator();
@@ -131,7 +157,7 @@ public class UtilityMethods {
 		return true;
 	}
 	/**
-	 * add elements of R that does not exits in L to L.
+	 * add elements of R that do not exits in L to L.
 	 * @param L
 	 * @param R
 	 */

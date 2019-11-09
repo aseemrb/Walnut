@@ -62,7 +62,8 @@ public class ParseMethods {
 	}
 
 	public static boolean parseAlphabetDeclaration(
-		String s,List<List<Integer>> A,
+		String s,
+		List<List<Integer>> A,
 		List<NumberSystem> bases) throws Exception {
 		//if(!s.matches(REGEXP_FOR_ALPHABET_DECLARATION))return false;
 		Matcher m = PATTERN_NEXT_ALPHABET_TOKEN.matcher(s);

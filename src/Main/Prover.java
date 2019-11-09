@@ -38,8 +38,8 @@ import Automata.NumberSystem;
  */
 public class Prover {
 	static String COLOR_RESET = "\u001B[0m";
-	static String COLOR_PROMPT = "\u001B[32m";
-	static String PROMPT = "\n" + COLOR_PROMPT + "Walnut:> " + COLOR_RESET;
+	static String COLOR_PROMPT = "\u001B[44m\u001B[33m";
+	static String PROMPT = "\n" + COLOR_PROMPT + "Walnut>" + COLOR_RESET + " ";
 	static String REGEXP_FOR_THE_LIST_OF_COMMANDS = "(eval|def|macro|reg|load|exit)";
 	static String REGEXP_FOR_EMPTY_COMMAND = "^\\s*(;|::|:)\\s*$";
 	/**
@@ -93,10 +93,10 @@ public class Prover {
 	 */
 	public static void main(String[] args) throws Exception {
 		UtilityMethods.setPaths();
-		//IntegrationTest IT = new IntegrationTest(true);
+		// IntegrationTest IT = new IntegrationTest(true);
+		//IT.runTestCases(384);
 		//IT.runPerformanceTest("Walnut with Valmari without refactoring", 5);
 		//IT.runPerformanceTest("Walnut with dk.bricks", 5);
-		//IT.runTestCases(384);
 		//IT.createTestCases();
 		run(args);
 	}
@@ -118,7 +118,9 @@ public class Prover {
 				//e.printStackTrace();
 			} finally {
 				try {
-					if (in != null)in.close();
+					if (in != null) {
+						in.close();
+					}
 				} catch (IOException ex) {
 					System.out.flush();
 					System.err.println(ex.getMessage());
@@ -213,8 +215,11 @@ public class Prover {
 		}
 
 		if(commandName.equals("exit")){
-			if(s.matches(REGEXP_FOR_exit_COMMAND)) return false;
-			throw new Exception("invalid command");
+			if(s.matches(REGEXP_FOR_exit_COMMAND)) {
+				return false;
+			}
+
+			throw new Exception("Invalid command.");
 		} else if(commandName.equals("load")) {
 			if(!loadCommand(s)) return false;
 		} else if(commandName.equals("eval") || commandName.equals("def")) {
@@ -247,7 +252,9 @@ public class Prover {
 		else if(commandName.equals("load")){
 			if(!loadCommand(s))return null;
 		}
-		else if(commandName.equals("eval") || commandName.equals("def"))return eval_def_commands(s);
+		else if(commandName.equals("eval") || commandName.equals("def")) {
+			return eval_def_commands(s);
+		}
 		else if(commandName.equals("macro"))return macro_command(s);
 		else if(commandName.equals("reg"))return regCommand(s);
 		else throw new Exception("no such command exists");
@@ -284,24 +291,34 @@ public class Prover {
 		Automaton M = null;
 
 		Matcher m = PATTERN_FOR_eval_def_COMMANDS.matcher(s);
-		if(!m.find())throw new Exception("invalid use of eval/def command");
+		if(!m.find()) {
+			throw new Exception("Invalid use of eval/def command.");
+		}
+
 		List<String> free_variables = new ArrayList<String>();
-		if(m.group(ED_FREE_VARIABLES)!= null)
-			which_matrices_to_compute(m.group(ED_FREE_VARIABLES),free_variables);
+		if(m.group(ED_FREE_VARIABLES)!= null) {
+			which_matrices_to_compute(m.group(ED_FREE_VARIABLES), free_variables);
+		}
+
 		boolean printSteps = m.group(ED_ENDING).equals(":");
 		boolean printDetails = m.group(ED_ENDING).equals("::");
 
 		Computer c = new Computer(m.group(ED_PREDICATE), printSteps, printDetails);
 		c.write(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".txt");
 		c.drawAutomaton(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".gv");
-		if(free_variables.size() > 0){
-			c.writeMatrices(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".mpl",free_variables);
+		if(free_variables.size() > 0) {
+			c.writeMatrices(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".mpl", free_variables);
 		}
+
 		c.writeLog(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+"_log.txt");
-		if(printDetails)
+		if(printDetails) {
 			c.writeDetailedLog(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+"_detailed_log.txt");
-		if(m.group(ED_TYPE).equals("def"))
+		}
+
+		if(m.group(ED_TYPE).equals("def")) {
 			c.write(UtilityMethods.get_address_for_automata_library()+m.group(ED_NAME)+".txt");
+		}
+
 		M = c.getTheFinalResult();
 		return new TestCase(s, M, "", c.mpl, printDetails ? c.log_details.toString() : "");
 	}

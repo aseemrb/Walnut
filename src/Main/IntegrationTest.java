@@ -38,25 +38,32 @@ import java.util.regex.Pattern;
 import Automata.Automaton;
 
 public class IntegrationTest {
-	String directoryAddress = "Test Results/Integreation Tests/";
+	static String COLOR_RESET = "\u001B[0m";
+	static String COLOR_FAILED = "\u001B[31m";
+	static String COLOR_PASSED = "\u001B[32m";
+
+	String directoryAddress = UtilityMethods.get_address_for_integration_test_results();
 	String performanceTestFileName = "performance_test.txt";
 	List<TestCase> testCases;//list of test cases
 	List<String> L;//list of commands
 	private void initialize(){
+		PrintWriter out = null;
 		try {
-			PrintWriter out = new PrintWriter("Word Automata Library/T2.txt", "utf-8");
+			File file = new File(UtilityMethods.get_address_for_words_library() + "T2.txt");
+			file.getParentFile().mkdirs();
+			out = new PrintWriter("../Word Automata Library/T2.txt", "utf-8");
 			out.write("msd_2 msd_2\n0 1\n0 0 -> 0\n1 0 -> 1\n0 1 -> 1\n1 1 -> 0\n1 0\n0 0 -> 1\n1 0 -> 0\n0 1 -> 0\n1 1 -> 1\n");
 			out.close();
-			out = new PrintWriter("Word Automata Library/RS.txt", "utf-8");
+			out = new PrintWriter("../Word Automata Library/RS.txt", "utf-8");
 			out.write("msd_2\n0 0\n0 -> 0\n1 -> 1\n1 0\n0 -> 0\n1 -> 2\n2 1\n0 -> 3\n1 -> 1\n3 1\n0 -> 3\n1 -> 2\n");
 			out.close();
-			out = new PrintWriter("Word Automata Library/P.txt", "utf-8");
+			out = new PrintWriter("../Word Automata Library/P.txt", "utf-8");
 			out.write("msd_2\n0 0\n0 -> 0\n1 -> 1\n1 0\n0 -> 0\n1 -> 2\n2 1\n0 -> 3\n1 -> 2\n3 1\n0 -> 3\n1 -> 1\n");
 			out.close();
-			out = new PrintWriter("Word Automata Library/PR.txt", "utf-8");
+			out = new PrintWriter("../Word Automata Library/PR.txt", "utf-8");
 			out.write("lsd_2\n0 0\n0 -> 1\n1 -> 0\n1 0\n0 -> 2\n1 -> 3\n2 0\n0 -> 2\n1 -> 2\n3 1\n0 -> 3\n1 -> 3\n");
 			out.close();
-			out = new PrintWriter("Word Automata Library/PD.txt", "utf-8");
+			out = new PrintWriter("../Word Automata Library/PD.txt", "utf-8");
 			out.write("msd_2\n0 1\n0 -> 0\n1 -> 1\n1 0\n0 -> 0\n1 -> 0\n");
 			out.close();
 
@@ -83,13 +90,17 @@ public class IntegrationTest {
 			Prover.dispatchForIntegrationTest("macro palindrome \"?%0 Ak (k<n) => %1[i+k] = %1[i+n-1-k]\";");
 			//Prover.dispatchForIntegrationTest("macro factoreq \"%0 Ak (%4<n) => %1[%2+k]=%1[%3+k]\"");
 			Prover.dispatchForIntegrationTest("macro border \"?%0 m>=1 & m<=n & $%1_factoreq(i,i+n-m,m)\";");
-		} catch (FileNotFoundException e2) {
-			e2.printStackTrace();
-		} catch (UnsupportedEncodingException e2) {
-			e2.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		} catch(Exception e){
 			e.printStackTrace();
-		}
+		} finally {
+	        if(out != null){
+	            out.close();
+	        }
+        }
 	}
 	public IntegrationTest(){
 		this(false);
@@ -581,14 +592,20 @@ public class IntegrationTest {
 				if(!conformMPL(expected.mpl.trim(),actual.mpl.trim())){
 					failedTestsCount++;
 					mplFailedTestsCount++;
-					System.out.println("test " + i + " failed! Actual and expected .mpl files do not conform.");
+					System.out.println(
+						COLOR_FAILED +
+						"Test " + i + " failed! Actual and expected .mpl files do not conform.\n" +
+						COLOR_RESET);
 					continue;
 				}
 
 				if(!conformDetails(expected.details.trim(),actual.details.trim())){
 					failedTestsCount++;
 					detailsFailedTestsCount++;
-					System.out.println("test " + i + " failed! Actual and expected detailed logs do not conform.");
+					System.out.println(
+						COLOR_FAILED +
+						"Test " + i + " failed! Actual and expected detailed logs do not conform.\n" +
+						COLOR_RESET);
 					continue;
 				}
 
@@ -597,7 +614,10 @@ public class IntegrationTest {
 				   !actual.result.equals(expected.result)){
 					failedTestsCount++;
 					automataFailedTestsCount++;
-					System.out.println("test " + i + " failed! Actual and expected automata do not conform.");
+					System.out.println(
+						COLOR_FAILED +
+						"Test " + i + " failed! Actual and expected automata do not conform.\n" +
+						COLOR_RESET);
 				}
 			}
 			catch(Exception e){
@@ -605,19 +625,23 @@ public class IntegrationTest {
 					errorFailedTestsCount++;
 					failedTestsCount++;
 					System.out.flush();
-					System.out.println("test " + i + " failed! Actual and expected error messages do not conform.");
+					System.out.println(
+						COLOR_FAILED +
+						"Test " + i + " failed! Actual and expected error messages do not conform.\n" +
+						COLOR_RESET);
 				}
 			}
 		}
 		if(failedTestsCount == 0){
-			System.out.println("all tests completed successfully!");
+			System.out.println(COLOR_PASSED + "All tests passed!\n" + COLOR_RESET);
 		}
 		else{
-			System.out.println(failedTestsCount + " test cases failed!");
+			System.out.println(COLOR_FAILED + failedTestsCount + " test cases failed!");
 			System.out.println(automataFailedTestsCount + " test cases failed because of resulting automata mistmach!");
 			System.out.println(errorFailedTestsCount + " test cases failed because of error messages mistmach!");
 			System.out.println(mplFailedTestsCount + " test cases failed because of mpl mistmach!");
 			System.out.println(detailsFailedTestsCount + " test cases failed because of detailed logs mistmach!");
+			System.out.print(COLOR_RESET);
 		}
 		return total;
 	}

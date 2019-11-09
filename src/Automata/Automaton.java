@@ -91,7 +91,8 @@ public class Automaton {
      * When TRUE_FALSE_AUTOMATON = true and TRUE_AUTOMATON = false then this is a false automaton.
      * When TRUE_FALSE_AUTOMATON = true and TRUE_AUTOMATON = true then this is a true automaton.
     */
-    boolean TRUE_FALSE_AUTOMATON = false,TRUE_AUTOMATON = false;
+    boolean TRUE_FALSE_AUTOMATON = false;
+    boolean TRUE_AUTOMATON = false;
 
     /**
      *  Input Alphabet.
@@ -185,11 +186,11 @@ public class Automaton {
     Partition C;
 
     // number of states
-    int nn;
+    int num_states;
     // number of transitions
-    int mm;
+    int num_transitions;
     // number of final states
-    int ff;
+    int num_finalstates;
 
     // tails of transitions
     Integer[] T;
@@ -203,19 +204,19 @@ public class Automaton {
 
     void make_adjacent(Integer K[]) {
         int q, t;
-        for( q = 0; q <= nn; ++q ) {
+        for( q = 0; q <= num_states; ++q ) {
             _F[q] = 0;
         }
 
-        for( t = 0; t < mm; ++t ) {
+        for( t = 0; t < num_transitions; ++t ) {
             ++_F[K[t]];
         }
 
-        for( q = 0; q < nn; ++q ) {
+        for( q = 0; q < num_states; ++q ) {
             _F[q+1] += _F[q];
         }
 
-        for( t = mm; t-- != 0; ) {
+        for( t = num_transitions; t-- != 0; ) {
             _A[--_F[K[t]]] = t;
         }
     }
@@ -238,13 +239,13 @@ public class Automaton {
             }
         }
         j = 0;
-        for( int t = 0; t < mm; ++t ){
+        for( int t = 0; t < num_transitions; ++t ){
             if( B.L[T[t]] < rr ){
                 H[j] = H[t]; L[j] = L[t];
                 T[j] = T[t]; ++j;
             }
         }
-        mm = j; B.P[0] = rr; rr = 0;
+        num_transitions = j; B.P[0] = rr; rr = 0;
     }
 
     /* Minimization algorithm */
@@ -252,8 +253,8 @@ public class Automaton {
         HashSet<Integer> qqq = new HashSet<Integer>();
         qqq.add(q0);
         subsetConstruction(qqq,print,prefix,log);
-        nn = Q;
-        mm = 0;
+        num_states = Q;
+        num_transitions = 0;
         B = new Partition();
         C = new Partition();
         ArrayList<Integer> _H = new ArrayList<Integer>(),_L = new ArrayList<Integer>(),_T= new ArrayList<Integer>();
@@ -261,7 +262,7 @@ public class Automaton {
         for(int q = 0; q != d.size();++q){
             for(int l : d.get(q).keySet()) {
                 for(int p : d.get(q).get(l)) {
-                    mm++;
+                    num_transitions++;
                     _H.add(p);
                     _T.add(q);
                     _L.add(l);
@@ -270,29 +271,29 @@ public class Automaton {
             }
         }
         //System.out.println("-------------------------------------------");
-        T = new Integer[mm];
-        L = new Integer[mm];
-        H = new Integer[mm];
+        T = new Integer[num_transitions];
+        L = new Integer[num_transitions];
+        H = new Integer[num_transitions];
         _T.toArray(T); _L.toArray(L);_H.toArray(H);
-        B.init( nn );
-        _A = new int[ mm ]; _F = new int[ nn+1 ];
+        B.init( num_states );
+        _A = new int[ num_transitions ]; _F = new int[ num_states+1 ];
 
           //reach( q0 ); rem_unreachable( T, H );
-        for( int q = 0; q < nn; ++q ){
+        for( int q = 0; q < num_states; ++q ){
             if(O.get(q) != 0){
                 reach( q );
             }
         }
-        ff = rr; rem_unreachable( H, T );
+        num_finalstates = rr; rem_unreachable( H, T );
 
         /* Make initial partition */
-        Partition.W = new int[ mm+1 ]; Partition.M = new int[ mm+1];
-        Partition.M[0] = ff;
-        if( ff != 0 ){ Partition.W[Partition.w++] = 0; B.split(); }
+        Partition.W = new int[ num_transitions+1 ]; Partition.M = new int[ num_transitions+1];
+        Partition.M[0] = num_finalstates;
+        if( num_finalstates != 0 ){ Partition.W[Partition.w++] = 0; B.split(); }
 
         /* Make transition partition */
-        C.init( mm );
-        if( mm != 0 ){
+        C.init( num_transitions );
+        if( num_transitions != 0 ){
             Arrays.sort(C.E, new Comparator<Integer>() {
                 @Override
                 public int compare(Integer a, Integer b)
@@ -302,7 +303,7 @@ public class Automaton {
                 }
             });
             C.z = Partition.M[0] = 0; int a = L[C.E[0]];
-            for( int i = 0; i < mm; ++i ){
+            for( int i = 0; i < num_transitions; ++i ){
                 int t = C.E[i];
                 if( L[t] != a ){
                     a = L[t]; C.P[C.z++] = i;
@@ -310,7 +311,7 @@ public class Automaton {
                 }
                 C.S[t] = C.z; C.L[t] = i;
             }
-            C.P[C.z++] = mm;
+            C.P[C.z++] = num_transitions;
         }
 
         /* Split blocks and cords */
@@ -336,7 +337,7 @@ public class Automaton {
         q0 = B.S[q0];
         O = new ArrayList<Integer>(Q);
         for( int q = 0; q < B.z; ++q ){
-            if( B.F[q] < ff ){
+            if( B.F[q] < num_finalstates ){
                 O.add(1);
             }
             else {
@@ -348,7 +349,7 @@ public class Automaton {
         for( int q = 0; q < Q;++q){
             d.add(new TreeMap<Integer,List<Integer>>());
         }
-        for( int t = 0; t < mm; ++t ){
+        for( int t = 0; t < num_transitions; ++t ){
             if( B.L[T[t]] == B.F[B.S[T[t]]] ){
                 int q = B.S[T[t]];
                 int l = L[t];
@@ -407,7 +408,7 @@ public class Automaton {
      * @param address
      * @throws Exception
      */
-    public Automaton(String regularExpression,List<Integer> alphabet)throws Exception{
+    public Automaton(String regularExpression, List <Integer> alphabet) throws Exception {
         this();
         if(alphabet == null || alphabet.size()== 0)throw new Exception("empty alphabet is not accepted");
         alphabet = new ArrayList<Integer>(alphabet);
@@ -457,7 +458,10 @@ public class Automaton {
         }
     }
 
-    public Automaton(String regularExpression,List<Integer> alphabet,NumberSystem numSys)throws Exception{
+    public Automaton(
+        String regularExpression,
+        List<Integer> alphabet,
+        NumberSystem numSys) throws Exception {
         this(regularExpression,alphabet);
         NS.set(0,numSys);
     }
@@ -467,7 +471,7 @@ public class Automaton {
      * @param address
      * @throws Exception
      */
-    public Automaton(String address)throws Exception{
+    public Automaton(String address) throws Exception {
         this();
         final String REGEXP_FOR_WHITESPACE = "^\\s*$";
 
@@ -823,11 +827,21 @@ public class Automaton {
      * @return this automaton cross product M.
 
      */
-    private Automaton crossProduct(Automaton M, String op, boolean print, String prefix, StringBuffer log)throws Exception{
+    private Automaton crossProduct(
+        Automaton M,
+        String op,
+        boolean print,
+        String prefix,
+        StringBuffer log) throws Exception{
         if(this.TRUE_FALSE_AUTOMATON || M.TRUE_FALSE_AUTOMATON)
-            throw new Exception("invalid use of the crossProduct method: the automata for this method cannot be true or false automata");
-        if(this.label == null || M.label == null || this.label.size() != A.size() || M.label.size() != M.A.size())
-            throw new Exception("invalid use of the crossProduct method: the automata for this method must have labeled inputs");
+            throw new Exception("Invalid use of the crossProduct method: " +
+                "the automata for this method cannot be true or false automata.");
+        if(this.label == null ||
+            M.label == null ||
+            this.label.size() != A.size() ||
+            M.label.size() != M.A.size())
+            throw new Exception("Invalid use of the crossProduct method: " +
+                "the automata for this method must have labeled inputs.");
         /**N is going to hold the cross product*/
         Automaton N = new Automaton();
 

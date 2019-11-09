@@ -149,26 +149,29 @@ public class Predicate {
 				Matcher matcher = MATCHER_FOR_LOGICAL_OPERATORS;
 				if(matcher.group(1).equals("E") || matcher.group(1).equals("A")){
 					if(!MATCHER_FOR_LIST_OF_QUANTIFIED_VARIABLES.find(matcher.end())){
-						throw new Exception("operator " + matcher.group(1) +" requires a list of variables: char at " + (real_starting_position+index));
+						throw new Exception(
+							"Operator " + matcher.group(1) +
+							" requires a list of variables: char at " +
+							(real_starting_position+index));
 					}
+
 					index = handle_quantifier(current_number_system);
-				}
-				else{
-					op = new LogicalOperator(real_starting_position + matcher.start(1), matcher.group(1));
+				} else {
+					op = new LogicalOperator(
+						real_starting_position + matcher.start(1), matcher.group(1));
 					op.put(postOrder,operator_Stack);
 					index = matcher.end();
 				}
-			}
-			else if(MATCHER_FOR_RELATIONAL_OPERATORS.find(index)){
+			} else if(MATCHER_FOR_RELATIONAL_OPERATORS.find(index)) {
 				lastTokenWasOperator = true;
 				Matcher matcher = MATCHER_FOR_RELATIONAL_OPERATORS;
-				if(!number_system_Hash.containsKey(current_number_system))
+				if(!number_system_Hash.containsKey(current_number_system)) {
 					number_system_Hash.put(current_number_system, new NumberSystem(current_number_system));
+				}
 				op = new RelationalOperator(real_starting_position + matcher.start(1), matcher.group(1), number_system_Hash.get(current_number_system));
-				op.put(postOrder,operator_Stack);
+				op.put(postOrder, operator_Stack);
 				index = matcher.end();
-			}
-			else if(MATCHER_FOR_ARITHMETIC_OPERATORS.find(index)){
+			} else if(MATCHER_FOR_ARITHMETIC_OPERATORS.find(index)) {
 				lastTokenWasOperator = true;
 				Matcher matcher = MATCHER_FOR_ARITHMETIC_OPERATORS;
 				if(!number_system_Hash.containsKey(current_number_system))
@@ -176,75 +179,75 @@ public class Predicate {
 				op = new ArithmeticOperator(real_starting_position + matcher.start(1), matcher.group(1), number_system_Hash.get(current_number_system));
 				op.put(postOrder,operator_Stack);
 				index = matcher.end();
-			}
-			else if(MATCHER_FOR_WORD.find(index)){
-				if(!lastTokenWasOperator)throw new Exception("an operator is missing: char at " + (real_starting_position+index));
+			} else if(MATCHER_FOR_WORD.find(index)) {
+				if(!lastTokenWasOperator)throw new Exception(
+					"An operator is missing: char at " + (real_starting_position+index));
 				lastTokenWasOperator = false;
 				index = put_word(current_number_system);
-			}
-			else if(MATCHER_FOR_FUNCTION.find(index)){
-				if(!lastTokenWasOperator)throw new Exception("an operator is missing: char at " + (real_starting_position+index));
+			} else if(MATCHER_FOR_FUNCTION.find(index)) {
+				if(!lastTokenWasOperator)throw new Exception(
+					"An operator is missing: char at " + (real_starting_position+index));
 				lastTokenWasOperator = false;
 				index = put_function(current_number_system);
-			}
-			else if(MATCHER_FOR_MACRO.find(index)){
-				if(!lastTokenWasOperator)throw new Exception("an operator is missing: char at " + (real_starting_position+index));
+			} else if(MATCHER_FOR_MACRO.find(index)) {
+				if(!lastTokenWasOperator)throw new Exception(
+					"An operator is missing: char at " + (real_starting_position+index));
 				index = put_macro();
-			}
-			else if(MATCHER_FOR_VARIABLE.find(index)){
-				if(!lastTokenWasOperator)throw new Exception("an operator is missing: char at " + (real_starting_position+index));
+			} else if(MATCHER_FOR_VARIABLE.find(index)) {
+				if(!lastTokenWasOperator)throw new Exception(
+					"An operator is missing: char at " + (real_starting_position+index));
 				lastTokenWasOperator = false;
 				t = new Variable(real_starting_position + MATCHER_FOR_VARIABLE.start(1),MATCHER_FOR_VARIABLE.group(1));
 				t.put(postOrder);
 				index = MATCHER_FOR_VARIABLE.end();
-			}
-			else if(MATCHER_FOR_NUMBER_LITERAL.find(index)){
-				if(!lastTokenWasOperator)throw new Exception("an operator is missing: char at " + (real_starting_position+index));
+			} else if(MATCHER_FOR_NUMBER_LITERAL.find(index)) {
+				if(!lastTokenWasOperator)throw new Exception(
+					"An operator is missing: char at " + (real_starting_position+index));
 				lastTokenWasOperator = false;
 				if(!number_system_Hash.containsKey(current_number_system))
 					number_system_Hash.put(current_number_system, new NumberSystem(current_number_system));
 				t = new NumberLiteral(real_starting_position + MATCHER_FOR_NUMBER_LITERAL.start(1),UtilityMethods.parseInt(MATCHER_FOR_NUMBER_LITERAL.group(1)),number_system_Hash.get(current_number_system));
 				t.put(postOrder);
 				index = MATCHER_FOR_NUMBER_LITERAL.end();
-			}
-			else if(MATCHER_FOR_ALPHABET_LETTER.find(index)){
+			} else if(MATCHER_FOR_ALPHABET_LETTER.find(index)) {
 				if(!lastTokenWasOperator)throw new Exception("an operator is missing: char at " + index);
 				lastTokenWasOperator = false;
 				t = new AlphabetLetter(real_starting_position + MATCHER_FOR_ALPHABET_LETTER.start(1),UtilityMethods.parseInt(MATCHER_FOR_ALPHABET_LETTER.group(1)));
 				t.put(postOrder);
 				index = MATCHER_FOR_ALPHABET_LETTER.end();
-			}
-			else if(MATCHER_FOR_NUMBER_SYSTEM.find(index)){
+			} else if(MATCHER_FOR_NUMBER_SYSTEM.find(index)) {
 				String tmp = derive_number_system();
 				number_system_Stack.push(tmp);
 				current_number_system = tmp;
 				index = MATCHER_FOR_NUMBER_SYSTEM.end();
-			}
-			else if(MATCHER_FOR_LEFT_PARENTHESIS.find(index)){
+			} else if(MATCHER_FOR_LEFT_PARENTHESIS.find(index)) {
 				op = new LeftParenthesis(real_starting_position + index);
 				op.put(postOrder,operator_Stack);
 				number_system_Stack.push("(");
 				index = MATCHER_FOR_LEFT_PARENTHESIS.end();
-			}
-			else if(MATCHER_FOR_RIGHT_PARENTHESIS.find(index)){
+			} else if(MATCHER_FOR_RIGHT_PARENTHESIS.find(index)) {
 				op = new RightParenthesis(real_starting_position + index);
 				op.put(postOrder,operator_Stack);
 				current_number_system = find_current_number_system_in_stack(number_system_Stack);
 				index = MATCHER_FOR_RIGHT_PARENTHESIS.end();
-			}
-			else if(MATCHER_FOR_WHITESPACE.find(index)){
+			} else if(MATCHER_FOR_WHITESPACE.find(index)) {
 				index = MATCHER_FOR_WHITESPACE.end();
-			}
-			else{
+			} else {
 				throw new Exception("undefined token: at char "+(real_starting_position + index));
 			}
 		}
+
 		while(!operator_Stack.isEmpty()){
 			op = operator_Stack.pop();
-			if(op.isLeftParenthesis())throw new Exception("unbalanced parenthesis: char at " + op.getPositionInPredicate());
-			else postOrder.add(op);
+			if(op.isLeftParenthesis()) {
+				throw new Exception(
+					"Unbalanced parenthesis: char at " + op.getPositionInPredicate());
+			} else {
+				postOrder.add(op);
+			}
 		}
 	}
+
 	private String find_current_number_system_in_stack(Stack<String> number_system_Stack){
 		String current_number_system = default_number_system;
 		while(!number_system_Stack.isEmpty()){
