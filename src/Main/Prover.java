@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import Automata.Automaton;
 import Automata.NumberSystem;
-import Automata.OstrowskiAdder;
+import Automata.OstrowskiNumeration;
 
 /**
  * This class contains the main method. It is responsible to get a command from user
@@ -38,10 +38,7 @@ import Automata.OstrowskiAdder;
  * @author Hamoon
  */
 public class Prover {
-	static String COLOR_RESET = "\u001B[0m";
-	static String COLOR_PROMPT = "\u001B[44m\u001B[33m";
-	static String PROMPT = "\n" + COLOR_PROMPT + "Walnut>" + COLOR_RESET + " ";
-	static String REGEXP_FOR_THE_LIST_OF_COMMANDS = "(eval|def|macro|reg|load|ost|exit)";
+	static String REGEXP_FOR_THE_LIST_OF_COMMANDS = "(eval|def|macro|reg|load|ost|exit|quit)";
 	static String REGEXP_FOR_EMPTY_COMMAND = "^\\s*(;|::|:)\\s*$";
 	/**
 	 * the high-level scheme of a command is a name followed by some arguments and ending in either ; : or ::
@@ -49,7 +46,7 @@ public class Prover {
 	static String REGEXP_FOR_COMMAND = "^\\s*(\\w+)(\\s+.*)?(;|::|:)\\s*$";
 	static Pattern PATTERN_FOR_COMMAND = Pattern.compile(REGEXP_FOR_COMMAND);
 
-	static String REGEXP_FOR_exit_COMMAND = "^\\s*exit\\s*(;|::|:)$";
+	static String REGEXP_FOR_exit_COMMAND = "^\\s*(exit|quit)\\s*(;|::|:)$";
 
 	static String REGEXP_FOR_load_COMMAND = "^\\s*load\\s+(\\w+\\.txt)\\s*(;|::|:)\\s*$";
 	/**
@@ -153,7 +150,7 @@ public class Prover {
 		    StringBuffer buffer = new StringBuffer();
 			while(true) {
 				if (console) {
-					System.out.print(PROMPT);
+					System.out.print(UtilityMethods.PROMPT);
 				}
 
 				String s = in.readLine();
@@ -190,7 +187,11 @@ public class Prover {
 		    			}
 		    		} catch(Exception e) {
 		    			System.out.flush();
-		    			System.err.println(e.getMessage()+UtilityMethods.newLine()+"\t: " + s);
+		    			System.err.println(
+		    				UtilityMethods.COLOR_FAILED +
+		    				e.getMessage() +
+		    				UtilityMethods.COLOR_RESET +
+		    				UtilityMethods.newLine() + "\t: " + s);
 		    			System.err.flush();
 		    		}
 
@@ -224,7 +225,7 @@ public class Prover {
 			throw new Exception("No such command exists.");
 		}
 
-		if(commandName.equals("exit")){
+		if(commandName.equals("exit") || commandName.equals("quit")){
 			if(s.matches(REGEXP_FOR_exit_COMMAND)) {
 				return false;
 			}
@@ -252,14 +253,16 @@ public class Prover {
 		}
 
 		Matcher matcher_for_command = PATTERN_FOR_COMMAND.matcher(s);
-		if(!matcher_for_command.find())throw new Exception("invalid command");
+		if(!matcher_for_command.find())throw new Exception("Invalid command.");
 
 		String commandName = matcher_for_command.group(1);
-		if(!commandName.matches(REGEXP_FOR_THE_LIST_OF_COMMANDS))throw new Exception("no such command exists");
+		if(!commandName.matches(REGEXP_FOR_THE_LIST_OF_COMMANDS)) {
+			throw new Exception("No such command exists.");
+		}
 
-		if(commandName.equals("exit")) {
-			if(s.matches(REGEXP_FOR_exit_COMMAND))return null;
-			throw new Exception("invalid command");
+		if(commandName.equals("exit") || commandName.equals("quit")) {
+			if(s.matches(REGEXP_FOR_exit_COMMAND)) return null;
+			throw new Exception("Invalid command.");
 		} else if(commandName.equals("load")){
 			if(!loadCommand(s)) return null;
 		} else if(commandName.equals("eval") || commandName.equals("def")) {
@@ -284,7 +287,7 @@ public class Prover {
 	 */
 	public static boolean loadCommand(String s) throws Exception {
 		Matcher m = PATTERN_FOR_load_COMMAND.matcher(s);
-		if(!m.find())throw new Exception("Invalid use of load command.");
+		if(!m.find()) throw new Exception("Invalid use of load command.");
 		BufferedReader in = null;
 
 		try {
@@ -400,7 +403,7 @@ public class Prover {
 			throw new Exception("Invalid use of ost command.");
 		}
 
-		OstrowskiAdder adder = new OstrowskiAdder(
+		OstrowskiNumeration adder = new OstrowskiNumeration(
 			m.group(GROUP_OST_NAME),
 			m.group(GROUP_OST_PREPERIOD),
 			m.group(GROUP_OST_PERIOD));

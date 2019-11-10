@@ -1786,56 +1786,75 @@ public class Automaton {
      *  @throws Exception
      */
     public void canonize(){
+        if(canonized) return;
+
         sortLabel();
-        if(canonized)return;
-        canonized = true;
-        if(TRUE_FALSE_AUTOMATON)return;
+        if(TRUE_FALSE_AUTOMATON) return;
+
         Queue<Integer> state_queue = new LinkedList<Integer>();
         state_queue.add(q0);
+
         /**map holds the permutation we need to apply to Q. In other words if map = {(0,3),(1,10),...} then
         *we have got to send Q[0] to Q[3] and Q[1] to Q[10]*/
         HashMap<Integer,Integer> map = new HashMap<Integer,Integer>();
         map.put(q0,0);
         int i = 1;
-        while(!state_queue.isEmpty()){
+        while(!state_queue.isEmpty()) {
             int q = state_queue.poll();
-            for(int x:d.get(q).keySet())
-                for(int p: d.get(q).get(x))
-                    if(!map.containsKey(p)){
+            for(int x:d.get(q).keySet()) {
+                for(int p: d.get(q).get(x)) {
+                    if(!map.containsKey(p)) {
                         map.put(p, i++);
                         state_queue.add(p);
                     }
+                }
+            }
         }
+
         q0 = map.get(q0);
         int newQ = map.size();
         List<Integer> newO = new ArrayList<Integer>();
-        for(int q = 0 ; q < newQ;q++)
+        for(int q = 0 ; q < newQ;q++) {
             newO.add(0);
-        for(int q = 0; q < Q;q++)
-            if(map.containsKey(q))
+        }
+        for(int q = 0; q < Q;q++) {
+            if(map.containsKey(q)) {
                 newO.set(map.get(q),O.get(q));
+            }
+        }
 
         List<TreeMap<Integer,List<Integer>>> new_d = new ArrayList<TreeMap<Integer,List<Integer>>>();
-        for(int q = 0 ; q < newQ;q++)
+        for(int q = 0 ; q < newQ;q++) {
             new_d.add(null);
-        for(int q = 0; q < Q;q++)
-            if(map.containsKey(q))
+        }
+
+        for(int q = 0; q < Q;q++) {
+            if(map.containsKey(q)) {
                 new_d.set(map.get(q), d.get(q));
+            }
+        }
+
         Q = newQ;
         O = newO;
         d = new_d;
-        for(int q = 0 ; q < Q;q++){
-            for(int x:d.get(q).keySet()){
+        for(int q = 0 ; q < Q;q++) {
+            for(int x:d.get(q).keySet()) {
                 List<Integer> newDestination = new ArrayList<Integer>();
-                for(int p:d.get(q).get(x))
-                    if(map.containsKey(p))
+                for(int p:d.get(q).get(x)) {
+                    if(map.containsKey(p)) {
                         newDestination.add(map.get(p));
-                if(newDestination.size() > 0)
+                    }
+                }
+
+                if(newDestination.size() > 0) {
                     d.get(q).put(x,newDestination);
-                else
+                } else {
                     d.get(q).remove(x);
+                }
             }
         }
+
+        canonized = true;
     }
 
     /**

@@ -36,6 +36,13 @@ public class UtilityMethods {
 	static String ADDRESS_FOR_TEST_LIBRARY = "Test Library/";
 	static String ADDRESS_FOR_INTEGRATION_TEST_RESULTS = "Test Results/Integreation Tests/";
 
+	// Colors and prompt.
+	static String COLOR_RESET = "\u001B[0m";
+	static String COLOR_PROMPT = "\u001B[36m";
+	static String PROMPT = "\n" + COLOR_PROMPT + "[Walnut]> " + COLOR_RESET + " ";
+	static String COLOR_FAILED = "\u001B[31m";
+	static String COLOR_PASSED = "\u001B[32m";
+
 	public static void setPaths(){
 		String path = System.getProperty("user.dir");
 		if(path.substring(path.length()-3).equals("bin"))
@@ -202,4 +209,19 @@ public class UtilityMethods {
 		return Integer.parseInt(b.toString());
 	}
 
+	public static void printS(String s) {
+		System.out.print(UtilityMethods.COLOR_PASSED + s + UtilityMethods.COLOR_RESET);
+	}
+
+	public static void printSln(String s) {
+		System.out.println(UtilityMethods.COLOR_PASSED + s + UtilityMethods.COLOR_RESET);
+	}
+
+	public static void printF(String s) {
+		System.out.print(UtilityMethods.COLOR_FAILED + s + UtilityMethods.COLOR_RESET);
+	}
+
+	public static void printFln(String s) {
+		System.out.println(UtilityMethods.COLOR_FAILED + s + UtilityMethods.COLOR_RESET);
+	}
 }

@@ -31,7 +31,7 @@ import java.util.TreeMap;
 import Main.UtilityMethods;
 
 /**
- * The class OstrowskiAdder includes functionality to produce an adder automaton based on only the<
+ * The class OstrowskiNumeration includes functionality to produce an adder automaton based on only the<
  * quadratic irrational number alpha that characterizes it. The quadratic irrational is<br>
  * represented using the continued fraction expansion with these two things:<br>
  * - Pre-period, and<br>
@@ -41,7 +41,7 @@ import Main.UtilityMethods;
  * We only consider alpha < 1, therefore a 0 is always assumed in the preperiod and need not be
  * mentioned in the command.
  */
-public class OstrowskiAdder {
+public class OstrowskiNumeration {
     // The number of states in the 4-input adder is 7.
     static final int NUM_STATES = 7;
 
@@ -85,7 +85,7 @@ public class OstrowskiAdder {
 
     int total_nodes;
 
-    public OstrowskiAdder(String name, String pre_period, String period) throws Exception {
+    public OstrowskiNumeration(String name, String pre_period, String period) throws Exception {
         this.name = name;
         this.pre_period = new ArrayList<Integer>();
         this.period = new ArrayList<Integer>();
@@ -153,23 +153,36 @@ public class OstrowskiAdder {
         }
 
         adder.minimize(false, "", null);
+
+        // We need to canonize and remove the first state.
+        // The automaton will work with this state as well, but it is useless. This happens
+        // because the Automaton class does not support an epsilon transition for NFAs.
         adder.canonize();
-        adder.d.remove(0);
-        adder.O.remove(0);
-        --adder.Q;
 
-        adder.d.forEach(tm -> {
-            tm.forEach((k, v) -> {
-                int dest = v.get(0) - 1;
-                // System.out.println(k + " -> " + v);
-                v.set(0, dest);
+        boolean zeroStateNeeded =
+            adder.d.stream().anyMatch(
+                tm -> tm.entrySet().stream().anyMatch(
+                    es -> es.getValue().get(0) == 0));
+
+        if (!zeroStateNeeded) {
+            adder.d.remove(0);
+            adder.O.remove(0);
+            --adder.Q;
+            adder.d.forEach(tm -> {
+                tm.forEach((k, v) -> {
+                    int dest = v.get(0) - 1;
+                    // System.out.println(k + " -> " + v);
+                    v.set(0, dest);
+                });
             });
-        });
+        }
 
+        // Write the Automaton to file.
         String adder_file_name =
             UtilityMethods.get_address_for_custom_bases() + "msd_" + this.name + "_addition.txt";
         adder.write(adder_file_name);
-        System.out.println("Ostrowski adder created and written to file " + adder_file_name);
+        UtilityMethods.printSln(
+            "Ostrowski adder automaton created and written to file " + adder_file_name);
     }
 
     public void createRepresentationAutomaton() throws Exception {
@@ -210,22 +223,28 @@ public class OstrowskiAdder {
 
         repr.minimize(false, "", null);
         repr.canonize();
-        repr.d.remove(0);
-        repr.O.remove(0);
-        --repr.Q;
 
-        repr.d.forEach(tm -> {
-            tm.forEach((k, v) -> {
-                int dest = v.get(0) - 1;
-                // System.out.println(k + " -> " + v);
-                v.set(0, dest);
+        boolean zeroStateNeeded =
+            repr.d.stream().anyMatch(
+                tm -> tm.entrySet().stream().anyMatch(
+                    es -> es.getValue().get(0) == 0));
+        if (!zeroStateNeeded) {
+            repr.d.remove(0);
+            repr.O.remove(0);
+            --repr.Q;
+            repr.d.forEach(tm -> {
+                tm.forEach((k, v) -> {
+                    int dest = v.get(0) - 1;
+                    v.set(0, dest);
+                });
             });
-        });
+        }
+
 
         String repr_file_name =
             UtilityMethods.get_address_for_custom_bases() + "msd_" + this.name + ".txt";
         repr.write(repr_file_name);
-        System.out.println(
+        UtilityMethods.printSln(
             "Ostrowski representation automaton created and written to file " + repr_file_name);
     }
 
@@ -608,7 +627,8 @@ public class OstrowskiAdder {
 
     private boolean isFinal(int node_index) {
         NodeState node = node_of_index.get(node_index);
-        return ((node.getState() + node.getStartIndex() + node.getSeenIndex() == 0) ||
+        return (
+            // (node.getState() + node.getStartIndex() + node.getSeenIndex() == 0) ||
             ((node.getState() == 0 || node.getState() == 2 || node.getState() == 6) &&
                 node.getSeenIndex() == 1));
     }

@@ -38,10 +38,6 @@ import java.util.regex.Pattern;
 import Automata.Automaton;
 
 public class IntegrationTest {
-	static String COLOR_RESET = "\u001B[0m";
-	static String COLOR_FAILED = "\u001B[31m";
-	static String COLOR_PASSED = "\u001B[32m";
-
 	String directoryAddress = UtilityMethods.get_address_for_integration_test_results();
 	String performanceTestFileName = "performance_test.txt";
 	List<TestCase> testCases;//list of test cases
@@ -593,9 +589,9 @@ public class IntegrationTest {
 					failedTestsCount++;
 					mplFailedTestsCount++;
 					System.out.println(
-						COLOR_FAILED +
+						UtilityMethods.COLOR_FAILED +
 						"Test " + i + " failed! Actual and expected .mpl files do not conform.\n" +
-						COLOR_RESET);
+						UtilityMethods.COLOR_RESET);
 					continue;
 				}
 
@@ -603,9 +599,9 @@ public class IntegrationTest {
 					failedTestsCount++;
 					detailsFailedTestsCount++;
 					System.out.println(
-						COLOR_FAILED +
+						UtilityMethods.COLOR_FAILED +
 						"Test " + i + " failed! Actual and expected detailed logs do not conform.\n" +
-						COLOR_RESET);
+						UtilityMethods.COLOR_RESET);
 					continue;
 				}
 
@@ -615,9 +611,9 @@ public class IntegrationTest {
 					failedTestsCount++;
 					automataFailedTestsCount++;
 					System.out.println(
-						COLOR_FAILED +
+						UtilityMethods.COLOR_FAILED +
 						"Test " + i + " failed! Actual and expected automata do not conform.\n" +
-						COLOR_RESET);
+						UtilityMethods.COLOR_RESET);
 				}
 			}
 			catch(Exception e){
@@ -626,22 +622,22 @@ public class IntegrationTest {
 					failedTestsCount++;
 					System.out.flush();
 					System.out.println(
-						COLOR_FAILED +
+						UtilityMethods.COLOR_FAILED +
 						"Test " + i + " failed! Actual and expected error messages do not conform.\n" +
-						COLOR_RESET);
+						UtilityMethods.COLOR_RESET);
 				}
 			}
 		}
 		if(failedTestsCount == 0){
-			System.out.println(COLOR_PASSED + "All tests passed!\n" + COLOR_RESET);
+			System.out.println(UtilityMethods.COLOR_PASSED + "All tests passed!\n" + UtilityMethods.COLOR_RESET);
 		}
 		else{
-			System.out.println(COLOR_FAILED + failedTestsCount + " test cases failed!");
+			System.out.println(UtilityMethods.COLOR_FAILED + failedTestsCount + " test cases failed!");
 			System.out.println(automataFailedTestsCount + " test cases failed because of resulting automata mistmach!");
 			System.out.println(errorFailedTestsCount + " test cases failed because of error messages mistmach!");
 			System.out.println(mplFailedTestsCount + " test cases failed because of mpl mistmach!");
 			System.out.println(detailsFailedTestsCount + " test cases failed because of detailed logs mistmach!");
-			System.out.print(COLOR_RESET);
+			System.out.print(UtilityMethods.COLOR_RESET);
 		}
 		return total;
 	}
