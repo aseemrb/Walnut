@@ -103,12 +103,12 @@ public class Automaton {
      *  Also note that A is a list of sets, but for technical reasons, we just made it a list of lists. However,
      *  we have to make sure, at all times, that the inner lists of A don't contain repeated elements.
      */
-    List<List<Integer>> A;
+    public List<List<Integer>> A;
 
     /**
      * Alphabet Size. For example, if A = [[-1,1],[2,3]], then alphabetSize = 4 and if A = [[-1,1],[0,1,2]], then alphabetSize = 6
      */
-    int alphabetSize;
+    public int alphabetSize;
 
     /**
      * This vector is useful in the encode method.
@@ -120,7 +120,7 @@ public class Automaton {
      * So we don't store the list x.
      * We can decode, the number returned by encode(), and get x back using decode method.
      */
-    List<Integer> encoder;
+    public List<Integer> encoder;
 
     /**
      * Types of the inputs to this automaton.
@@ -138,7 +138,7 @@ public class Automaton {
     public int Q;
 
     /**Initial State.*/
-    int q0;
+    public int q0;
 
     /**State Outputs. In case of DFA/NFA accepting states have a nonzero integer as their output.
      * Rejecting states have output 0.
@@ -151,15 +151,15 @@ public class Automaton {
      * of three inputs, where the first, second, and third inputs are labeled "a","b", and "c". Therefore E a f(a,b,c) says, we want to
      * do an existential quantifier on the first input.
      * */
-    List<String> label;
+    public List<String> label;
 
     /** When true, states are sorted in breadth-first order and labels are sorted lexicographically.
      *  It is used in canonize method. For more information read about canonize() method.
      * */
-    boolean canonized;
+    public boolean canonized;
 
     /** When true, labels are sorted lexicographically. It is used in sortLabel() method.*/
-    boolean labelSorted;
+    public boolean labelSorted;
 
     /**
      * Transition Function for This State. For example, when d[0] = [(0,[1]),(1,[2,3]),(2,[2]),(3,[4]),(4,[1]),(5,[0])]
@@ -175,7 +175,7 @@ public class Automaton {
      * Recall that (0,-1) represents 0 in mixed-radix base (1,2) and alphabet A. We have this mixed-radix base (1,2) stored as encoder in
      * our program, so for more information on how we compute it read the information on List<Integer> encoder field.
      */
-    List<TreeMap<Integer,List<Integer>>> d;
+    public List<TreeMap<Integer,List<Integer>>> d;
 
     /**
      * Valmari fields
@@ -186,11 +186,11 @@ public class Automaton {
     Partition C;
 
     // number of states
-    int num_states;
+    public int num_states;
     // number of transitions
-    int num_transitions;
+    public int num_transitions;
     // number of final states
-    int num_finalstates;
+    public int num_finalstates;
 
     // tails of transitions
     Integer[] T;
@@ -387,11 +387,11 @@ public class Automaton {
      * Initializes a special automaton: true or false.
      * A true automaton, is an automaton that accepts everything. A false automaton is an automaton that accepts nothing.
      * Therefore, M and false is false for every automaton M. We also have that M or true is true for every automaton M.
-     * @param TRUE_AUTOMATON
+     * @param true_automaton
      */
-    public Automaton(boolean TRUE_AUTOMATON){
+    public Automaton(boolean true_automaton){
         TRUE_FALSE_AUTOMATON = true;
-        this.TRUE_AUTOMATON = TRUE_AUTOMATON;
+        this.TRUE_AUTOMATON = true_automaton;
     }
 
     /**
@@ -538,38 +538,51 @@ public class Automaton {
             int currentOutput;
             TreeMap<Integer,List<Integer>> currentStateTransitions = new TreeMap<>();
             TreeMap<Integer,Integer> state_output = new TreeMap<Integer,Integer>();
-            TreeMap<Integer,TreeMap<Integer,List<Integer>>> state_transition = new TreeMap<Integer,TreeMap<Integer,List<Integer>>>();
-            /**this will hold all states that are destination of some transition. Then we make sure all these states
-             * are declared.
+            TreeMap<Integer,TreeMap<Integer,List<Integer>>> state_transition =
+                new TreeMap<Integer,TreeMap<Integer,List<Integer>>>();
+            /**
+             * This will hold all states that are destination of some transition.
+             * Then we make sure all these states are declared.
              */
             Set<Integer> setOfDestinationStates = new HashSet<Integer>();
             Q = 0;
-            while((line = in.readLine())!= null){
+            while((line = in.readLine())!= null) {
                 lineNumber++;
-                if(line.matches(REGEXP_FOR_WHITESPACE))continue;
-                if(ParseMethods.parseStateDeclaration(line,pair)){
+                if(line.matches(REGEXP_FOR_WHITESPACE)) {
+                    continue;
+                }
+
+                if(ParseMethods.parseStateDeclaration(line, pair)) {
                     Q++;
-                    if(currentState == -1) q0 = pair[0];
+                    if(currentState == -1) {
+                        q0 = pair[0];
+                    }
+
                     currentState = pair[0];
                     currentOutput = pair[1];
                     state_output.put(currentState, currentOutput);
                     currentStateTransitions = new TreeMap<>();
                     state_transition.put(currentState, currentStateTransitions);
-                }
-                else if(ParseMethods.parseTransition(line,input, dest)){
+                } else if(ParseMethods.parseTransition(line, input, dest)) {
                     setOfDestinationStates.addAll(dest);
                     if(currentState == -1){
                         in.close();
-                        throw new Exception("must declare a state before declaring a list of transitions: line "+ lineNumber + " of file " + address);
+                        throw new Exception(
+                            "Must declare a state before declaring a list of transitions: line " +
+                            lineNumber + " of file " + address);
                     }
-                    if(input.size() != A.size()){
+
+                    if(input.size() != A.size()) {
                         in.close();
-                        throw new Exception("this automaton requires a "+A.size() + "-tuple as input: line "+ lineNumber + " of file " + address);
+                        throw new Exception("This automaton requires a " + A.size() +
+                            "-tuple as input: line " + lineNumber + " of file " + address);
                     }
                     List<List<Integer>> inputs = expandWildcard(input);
+
                     for(List<Integer> i:inputs){
                         currentStateTransitions.put(encode(i), dest);
                     }
+
                     input = new ArrayList<Integer>();
                     dest = new ArrayList<Integer>();
                 }
@@ -579,17 +592,18 @@ public class Automaton {
                 }
             }
             in.close();
-            for(int q:setOfDestinationStates)
-                if(!state_output.containsKey(q))
-                    throw new Exception("state " + q +" is used but never declared anywhere in file: " + address);
+            for(int q:setOfDestinationStates) {
+                if(!state_output.containsKey(q)) {
+                    throw new Exception(
+                        "State " + q + " is used but never declared anywhere in file: " + address);
+                }
+            }
 
-
-            for(int q = 0 ;q < Q;q++){
+            for(int q = 0; q < Q; q++) {
                 O.add(state_output.get(q));
                 d.add(state_transition.get(q));
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             throw new Exception("file does not exit: " + address);
         }
@@ -683,21 +697,31 @@ public class Automaton {
      * @param listOfLabelsToQuantify
      * @throws Exception
      */
-    private void quantifyHelper(Set<String> listOfLabelsToQuantify,boolean print, String prefix, StringBuffer log)throws Exception{
-        if(listOfLabelsToQuantify.isEmpty() || label == null)
+    private void quantifyHelper(
+        Set<String> listOfLabelsToQuantify,
+        boolean print,
+        String prefix,
+        StringBuffer log) throws Exception {
+        if(listOfLabelsToQuantify.isEmpty() || label == null) {
             return;
-        //throw new Exception("quantification requires a non empty list of qunatified variables");
+        }
+
+        // throw new Exception("quantification requires a non empty list of qunatified variables");
         String name_of_labels = "";
-        for(String s:listOfLabelsToQuantify){
-            if(!label.contains(s))
-                throw new Exception("variable " + s + " in the list of quantified variables is not a free variable");
-            if(name_of_labels.length() == 0)
+        for(String s:listOfLabelsToQuantify) {
+            if(!label.contains(s)) {
+                throw new Exception(
+                    "Variable " + s + " in the list of quantified variables is not a free variable.");
+            }
+
+            if(name_of_labels.length() == 0) {
                 name_of_labels += s;
-            else
-                name_of_labels += ","+s;
+            } else {
+                name_of_labels += "," + s;
+            }
         }
         long timeBefore = System.currentTimeMillis();
-        if(print){
+        if(print) {
             String msg = prefix + "quantifying:" + Q + " states";
             log.append(msg + UtilityMethods.newLine());
             System.out.println(msg);
@@ -764,15 +788,16 @@ public class Automaton {
      * @return the reverse of this automaton
      * @throws Exception
      */
-    public void reverse(boolean print, String prefix, StringBuffer log) throws Exception{
+    public void reverse(boolean print, String prefix, StringBuffer log) throws Exception {
         if(TRUE_FALSE_AUTOMATON)return;
         long timeBefore = System.currentTimeMillis();
-        if(print){
+        if(print) {
             String msg = prefix + "reversing:" + Q + " states";
             log.append(msg + UtilityMethods.newLine());
             System.out.println(msg);
         }
-        /**we change the direction of transitions first*/
+
+        // We change the direction of transitions first.
         List<TreeMap<Integer,List<Integer>>> new_d = new ArrayList<>();
         for(int q = 0; q < Q;q++)new_d.add(new TreeMap<Integer,List<Integer>>());
         for(int q = 0 ; q < Q;q++){
@@ -1424,7 +1449,7 @@ public class Automaton {
                 canonize();
                 writeAlphabet(out);
                 for(int q = 0; q < Q;q++){
-                    writeState(out,q);
+                    writeState(out, q);
                 }
             }
             out.close();
@@ -1435,21 +1460,21 @@ public class Automaton {
         }
     }
 
-    private void writeAlphabet(PrintWriter out){
+    private void writeAlphabet(PrintWriter out) {
         for(int i = 0; i < A.size();i++){
             List<Integer> l = A.get(i);
             if(NS.get(i) == null){
                 out.write("{");
-                for(int j = 0 ; j < l.size();j++){
-                    if(j == 0){
+                for(int j = 0 ; j < l.size(); j++) {
+                    if(j == 0) {
                         out.write(Integer.toString(l.get(j)));
-
                     }
-                    else out.write(","+Integer.toString(l.get(j)));
+                    else out.write(", " + Integer.toString(l.get(j)));
                 }
+
                 out.write("} ");
             }
-            else{
+            else {
                 if(i == 0)
                     out.write(NS.get(i).toString());
                 else
@@ -1461,7 +1486,9 @@ public class Automaton {
     }
 
     private void writeState(PrintWriter out,int q){
-        out.write(q + " " + Integer.toString(O.get(q))+UtilityMethods.newLine());
+        out.write(
+            UtilityMethods.newLine() + q + " " +
+            Integer.toString(O.get(q)) + UtilityMethods.newLine());
         for(int n: d.get(q).keySet()){
             List<Integer> l = decode(n);
             for(int j = 0 ; j < l.size();j++)
@@ -1645,19 +1672,21 @@ public class Automaton {
      * We can choose to do Valmari or Hopcroft.
      * @throws Exception
      */
-    private void minimize(boolean print, String prefix,StringBuffer log)throws Exception{
+    public void minimize(boolean print, String prefix, StringBuffer log) throws Exception {
         long timeBefore = System.currentTimeMillis();
-        if(print){
-            String msg = prefix + "minimizing:" + Q + " states";
+        if(print) {
+            String msg = prefix + "Minimizing: " + Q + " states.";
+            System.out.println("----- " + msg);
             log.append(msg + UtilityMethods.newLine());
-            System.out.println(msg);
         }
-        minimize_valmari(print,prefix+" ",log);
+
+        minimize_valmari(print, prefix + " ", log);
         //minimize_hopcroft();
 
         long timeAfter = System.currentTimeMillis();
-        if(print){
-            String msg = prefix + "minimized:" + Q + " states - "+(timeAfter-timeBefore)+"ms";
+        if(print) {
+            String msg = prefix + "Minimized:" + Q + " states - " + (timeAfter-timeBefore) + "ms.";
+            System.out.println("----- " + msg);
             log.append(msg + UtilityMethods.newLine());
             System.out.println(msg);
         }
@@ -2324,6 +2353,10 @@ public class Automaton {
             if(!I.contains(i) || I.indexOf(i) == 0)
                 y.add(x.get(i));
         return encode(y, newAlphabet, newEncoder);
+    }
+
+    public List<TreeMap<Integer,List<Integer>>> get_transition_function() {
+        return d;
     }
     /*private boolean connected(int p,int q,int i){
         if(d.get(p).containsKey(i)){

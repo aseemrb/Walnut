@@ -135,13 +135,14 @@ public class ParseMethods {
 		List<Integer> dest) {
 		Matcher m = PATTERN_FOR_TRANSITION.matcher(s);
 		if(m.find()){
-			parseList(m.group(TRANSITION_INPUT),input);
-			parseList(m.group(TRANSITION_DESTINATION),dest);
+			parseList(m.group(TRANSITION_INPUT), input);
+			parseList(m.group(TRANSITION_DESTINATION), dest);
 			return true;
 		}
 		return false;
 	}
-	public static void parseList(String s,List<Integer> list){
+
+	public static void parseList(String s, List<Integer> list) {
 		int index = 0;
 		Matcher m = PATTERN_ELEMENT.matcher(s);
 		while(m.find(index)){

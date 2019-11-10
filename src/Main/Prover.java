@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import Automata.Automaton;
 import Automata.NumberSystem;
+import Automata.OstrowskiAdder;
 
 /**
  * This class contains the main method. It is responsible to get a command from user
@@ -40,7 +41,7 @@ public class Prover {
 	static String COLOR_RESET = "\u001B[0m";
 	static String COLOR_PROMPT = "\u001B[44m\u001B[33m";
 	static String PROMPT = "\n" + COLOR_PROMPT + "Walnut>" + COLOR_RESET + " ";
-	static String REGEXP_FOR_THE_LIST_OF_COMMANDS = "(eval|def|macro|reg|load|exit)";
+	static String REGEXP_FOR_THE_LIST_OF_COMMANDS = "(eval|def|macro|reg|load|ost|exit)";
 	static String REGEXP_FOR_EMPTY_COMMAND = "^\\s*(;|::|:)\\s*$";
 	/**
 	 * the high-level scheme of a command is a name followed by some arguments and ending in either ; : or ::
@@ -82,6 +83,13 @@ public class Prover {
 
 	static Pattern PATTERN_FOR_A_SINGLE_NOT_SPACED_WORD = Pattern.compile("\\w+");
 
+	static String REGEXP_FOR_ost_COMMAND = "^\\s*ost\\s+([a-zA-Z]\\w*)\\s*\\[\\s*((\\d+\\s*)*)\\]\\s*\\[\\s*((\\d+\\s*)*)\\]\\s*(;|:|::)\\s*$";
+	static Pattern PATTERN_FOR_ost_COMMAND = Pattern.compile(REGEXP_FOR_ost_COMMAND);
+	static int GROUP_OST_NAME = 1;
+	static int GROUP_OST_PREPERIOD = 2;
+	static int GROUP_OST_PERIOD = 4;
+	static int GROUP_OST_END = 6;
+
 	/**
 	 * if the command line argument is not empty, we treat args[0] as a filename.
 	 * if this is the case, we read from the file and load its commands before we submit control to user.
@@ -108,7 +116,8 @@ public class Prover {
 			try{
 				in = new BufferedReader(
 					new InputStreamReader(
-						new FileInputStream(UtilityMethods.get_address_for_command_files()+args[0]),
+						new FileInputStream(
+							UtilityMethods.get_address_for_command_files() + args[0]),
 						"utf-8"));
 				if(!readBuffer(in, false)) return;
 			}
@@ -127,7 +136,8 @@ public class Prover {
 				}
 			}
 		}
-		//now we parse commands user enter in console.
+
+		// Now we parse commands from the console.
 		in = new BufferedReader(new InputStreamReader(System.in));
 		readBuffer(in, true);
 	}
@@ -225,11 +235,13 @@ public class Prover {
 		} else if(commandName.equals("eval") || commandName.equals("def")) {
 			eval_def_commands(s);
 		} else if(commandName.equals("macro")) {
-			macro_command(s);
+			macroCommand(s);
 		} else if(commandName.equals("reg")) {
 			regCommand(s);
+		} else if(commandName.equals("ost")) {
+			ostCommand(s);
 		} else {
-			throw new Exception("no such command exists");
+			throw new Exception("Invalid command.");
 		}
 		return true;
 	}
@@ -245,19 +257,20 @@ public class Prover {
 		String commandName = matcher_for_command.group(1);
 		if(!commandName.matches(REGEXP_FOR_THE_LIST_OF_COMMANDS))throw new Exception("no such command exists");
 
-		if(commandName.equals("exit")){
+		if(commandName.equals("exit")) {
 			if(s.matches(REGEXP_FOR_exit_COMMAND))return null;
 			throw new Exception("invalid command");
-		}
-		else if(commandName.equals("load")){
-			if(!loadCommand(s))return null;
-		}
-		else if(commandName.equals("eval") || commandName.equals("def")) {
+		} else if(commandName.equals("load")){
+			if(!loadCommand(s)) return null;
+		} else if(commandName.equals("eval") || commandName.equals("def")) {
 			return eval_def_commands(s);
+		} else if(commandName.equals("macro")) {
+			return macroCommand(s);
+		} else if(commandName.equals("reg")) {
+			return regCommand(s);
+		} else {
+			throw new Exception("Invalid command: " + commandName);
 		}
-		else if(commandName.equals("macro"))return macro_command(s);
-		else if(commandName.equals("reg"))return regCommand(s);
-		else throw new Exception("no such command exists");
 		return null;
 	}
 
@@ -269,16 +282,21 @@ public class Prover {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean loadCommand(String s) throws Exception{
-
+	public static boolean loadCommand(String s) throws Exception {
 		Matcher m = PATTERN_FOR_load_COMMAND.matcher(s);
-		if(!m.find())throw new Exception("invalid use of load command");
+		if(!m.find())throw new Exception("Invalid use of load command.");
 		BufferedReader in = null;
 
 		try {
-			in = new BufferedReader(new InputStreamReader(new FileInputStream(UtilityMethods.get_address_for_command_files()+m.group(L_FILENAME)), "utf-8"));
-			if(!readBuffer(in,false))return false;
-
+			in = new BufferedReader(
+				new InputStreamReader(
+					new FileInputStream(
+						UtilityMethods.get_address_for_command_files() +
+						m.group(L_FILENAME)),
+					"utf-8"));
+			if(!readBuffer(in,false)) {
+				return false;
+			}
 		} catch (IOException e) {
 			System.out.flush();
 			System.err.println(e.getMessage());
@@ -287,7 +305,7 @@ public class Prover {
 		return true;
 	}
 
-	public static TestCase eval_def_commands(String s) throws Exception{
+	public static TestCase eval_def_commands(String s) throws Exception {
 		Automaton M = null;
 
 		Matcher m = PATTERN_FOR_eval_def_COMMANDS.matcher(s);
@@ -304,26 +322,28 @@ public class Prover {
 		boolean printDetails = m.group(ED_ENDING).equals("::");
 
 		Computer c = new Computer(m.group(ED_PREDICATE), printSteps, printDetails);
-		c.write(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".txt");
-		c.drawAutomaton(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".gv");
+		c.write(UtilityMethods.get_address_for_result() + m.group(ED_NAME)+".txt");
+		c.drawAutomaton(UtilityMethods.get_address_for_result() + m.group(ED_NAME) + ".gv");
 		if(free_variables.size() > 0) {
-			c.writeMatrices(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".mpl", free_variables);
+			c.writeMatrices(
+				UtilityMethods.get_address_for_result()+m.group(ED_NAME)+".mpl", free_variables);
 		}
 
-		c.writeLog(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+"_log.txt");
+		c.writeLog(UtilityMethods.get_address_for_result() + m.group(ED_NAME) + "_log.txt");
 		if(printDetails) {
-			c.writeDetailedLog(UtilityMethods.get_address_for_result()+m.group(ED_NAME)+"_detailed_log.txt");
+			c.writeDetailedLog(
+				UtilityMethods.get_address_for_result() + m.group(ED_NAME) + "_detailed_log.txt");
 		}
 
 		if(m.group(ED_TYPE).equals("def")) {
-			c.write(UtilityMethods.get_address_for_automata_library()+m.group(ED_NAME)+".txt");
+			c.write(UtilityMethods.get_address_for_automata_library() + m.group(ED_NAME) + ".txt");
 		}
 
 		M = c.getTheFinalResult();
 		return new TestCase(s, M, "", c.mpl, printDetails ? c.log_details.toString() : "");
 	}
 
-	public static TestCase macro_command(String s) throws Exception{
+	public static TestCase macroCommand(String s) throws Exception {
 		Matcher m = PATTERN_FOR_macro_COMMAND.matcher(s);
 		if(!m.find())throw new Exception("invalid use of macro command");
 
@@ -342,7 +362,7 @@ public class Prover {
 		return null;
 	}
 
-	public static TestCase regCommand(String s) throws Exception{
+	public static TestCase regCommand(String s) throws Exception {
 		Matcher m = PATTERN_FOR_reg_COMMAND.matcher(s);
 		if(!m.find())throw new Exception("invalid use of reg command");
 		NumberSystem ns = null;
@@ -372,6 +392,20 @@ public class Prover {
 		R.write(UtilityMethods.get_address_for_automata_library()+m.group(R_NAME)+".txt");
 
 		return new TestCase(s,R,"","","");
+	}
+
+	public static void ostCommand(String s) throws Exception {
+		Matcher m = PATTERN_FOR_ost_COMMAND.matcher(s);
+		if(!m.find()) {
+			throw new Exception("Invalid use of ost command.");
+		}
+
+		OstrowskiAdder adder = new OstrowskiAdder(
+			m.group(GROUP_OST_NAME),
+			m.group(GROUP_OST_PREPERIOD),
+			m.group(GROUP_OST_PERIOD));
+		adder.createRepresentationAutomaton();
+		adder.createAdderAutomaton();
 	}
 
 	private static void which_matrices_to_compute(String s, List<String> L){

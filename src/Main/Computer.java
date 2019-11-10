@@ -38,7 +38,7 @@ public class Computer {
 	String mpl;
 	boolean printSteps;
 	boolean printDetails;
-	public Computer(String predicate, boolean printSteps, boolean printDetails)throws Exception{
+	public Computer(String predicate, boolean printSteps, boolean printDetails) throws Exception {
 		this.log = new StringBuffer();
 		this.log_details = new StringBuffer();
 		mpl = "";
@@ -96,14 +96,13 @@ public class Computer {
 	public String toString(){
 		return result.toString();
 	}
-	private void compute() throws Exception{
+	private void compute() throws Exception {
 		Stack<Expression> expression_Stack = new Stack<Expression>();
 		List<Token> postOrder = predicate_object.get_postOrder();
-		System.out.println("------------ " + predicate_object);
 		String prefix = "";
 		long timeBeginning = System.currentTimeMillis();
 		String step,preStep;
-		for(Token t:postOrder){
+		for(Token t:postOrder) {
 			try{
 				long timeBefore = System.currentTimeMillis();
 				String operands = "";
@@ -132,8 +131,11 @@ public class Computer {
 		step = "Total computation time: " + (timeEnd - timeBeginning) + "ms.";
 		log.append(step);
 		log_details.append(step);
-		if(printSteps||printDetails)System.out.println(step);
-		if(expression_Stack.size() > 1){
+		if(printSteps||printDetails) {
+			System.out.println(step);
+		}
+
+		if(expression_Stack.size() > 1) {
 			String message =
 				"Cannot evaluate the following into a single automaton:" +
 				UtilityMethods.newLine();
@@ -149,11 +151,9 @@ public class Computer {
 
 			message += "Probably some operators are missing.";
 			throw new Exception(message);
-		}
-		else if(expression_Stack.isEmpty()){
+		} else if(expression_Stack.isEmpty()) {
 			throw new Exception("Evaluation ended in no result.");
-		}
-		else if(expression_Stack.size() == 1){
+		} else if(expression_Stack.size() == 1) {
 			result = expression_Stack.pop();
 			if(!result.is(Type.automaton)){
 				throw new Exception("The final result of the evaluation is not of type " + Type.automaton);

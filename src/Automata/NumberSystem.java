@@ -142,7 +142,6 @@ public class NumberSystem {
 		//addition
 		if(new File(addressForAddition).isFile()) {
 			addition = new Automaton(addressForAddition);
-			System.out.println("Addition automaton created.");
 		} else if(new File(complement_addressForAddition).isFile()) {
 			addition = new Automaton(complement_addressForAddition);
 			addition.reverse(false,null,null);
