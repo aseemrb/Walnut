@@ -242,7 +242,7 @@ public class Prover {
 		} else if(commandName.equals("ost")) {
 			ostCommand(s);
 		} else {
-			throw new Exception("Invalid command.");
+			throw new Exception("Invalid command " + commandName + ".");
 		}
 		return true;
 	}
@@ -403,12 +403,12 @@ public class Prover {
 			throw new Exception("Invalid use of ost command.");
 		}
 
-		OstrowskiNumeration adder = new OstrowskiNumeration(
+		OstrowskiNumeration ostr = new OstrowskiNumeration(
 			m.group(GROUP_OST_NAME),
 			m.group(GROUP_OST_PREPERIOD),
 			m.group(GROUP_OST_PERIOD));
-		adder.createRepresentationAutomaton();
-		adder.createAdderAutomaton();
+		ostr.createRepresentationAutomaton();
+		ostr.createAdderAutomaton();
 	}
 
 	private static void which_matrices_to_compute(String s, List<String> L){
