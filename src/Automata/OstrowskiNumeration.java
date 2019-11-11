@@ -21,7 +21,6 @@ package Automata;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
@@ -85,6 +84,9 @@ public class OstrowskiNumeration {
 
     int total_nodes;
 
+    Automaton adder;
+    Automaton repr;
+
     public OstrowskiNumeration(String name, String pre_period, String period) throws Exception {
         this.name = name;
         this.pre_period = new ArrayList<Integer>();
@@ -122,9 +124,75 @@ public class OstrowskiNumeration {
         this.total_nodes = 0;
     }
 
+    public void createRepresentationAutomaton() throws Exception {
+        resetAutomaton();
+        repr = new Automaton();
+
+        // Declare the alphabet.
+        repr.alphabetSize = d_max + 1;
+        List<Integer> list = new ArrayList<Integer>();
+        for (int i = 0; i <= d_max; i++) {
+            list.add(i);
+        }
+
+        // Only 1 input to the repr automaton.
+        repr.A.add(list);
+        repr.NS.add(null);
+        repr.d = new ArrayList<TreeMap<Integer, List<Integer>>>();
+        repr.alphabetSize = d_max + 1;
+        repr.Q = 0;
+
+        performReprBfs();
+        repr.Q = this.total_nodes;
+        for(int q = 0; q < this.total_nodes; ++q) {
+            if (node_of_index.containsKey(q)) {
+                NodeState node = node_of_index.get(q);
+                if (node.getState() == 0 && node.getSeenIndex() == 1) {
+                    repr.O.add(1);
+                } else {
+                    repr.O.add(0);
+                }
+            } else {
+                repr.O.add(0);
+            }
+
+            this.state_transitions.putIfAbsent(q, new TreeMap<>());
+            repr.d.add(this.state_transitions.get(q));
+        }
+
+        repr.minimize(false, "", null);
+        repr.canonize();
+
+        boolean zeroStateNeeded =
+            repr.d.stream().anyMatch(
+                tm -> tm.entrySet().stream().anyMatch(
+                    es -> es.getValue().get(0) == 0));
+        if (!zeroStateNeeded) {
+            repr.d.remove(0);
+            repr.O.remove(0);
+            --repr.Q;
+            repr.d.forEach(tm -> {
+                tm.forEach((k, v) -> {
+                    int dest = v.get(0) - 1;
+                    v.set(0, dest);
+                });
+            });
+        }
+
+        String repr_file_name =
+            UtilityMethods.get_address_for_custom_bases() + "msd_" + this.name + ".txt";
+        File f = new File(repr_file_name);
+        if(f.exists() && !f.isDirectory()) {
+            throw new Exception("Error: number system " + this.name + " already exisis.");
+        }
+        repr.write(repr_file_name);
+        UtilityMethods.printSln(
+            "Ostrowski representation automaton created and written to file " + repr_file_name);
+    }
+
     public void createAdderAutomaton() throws Exception {
         resetAutomaton();
-        Automaton adder = new Automaton();
+        adder = new Automaton();
 
         // Declare the alphabet.
         adder.alphabetSize = 1;
@@ -180,72 +248,14 @@ public class OstrowskiNumeration {
         // Write the Automaton to file.
         String adder_file_name =
             UtilityMethods.get_address_for_custom_bases() + "msd_" + this.name + "_addition.txt";
+        File f = new File(adder_file_name);
+        if(f.exists() && !f.isDirectory()) {
+            throw new Exception("Error: number system " + this.name + " already exisis.");
+        }
+
         adder.write(adder_file_name);
         UtilityMethods.printSln(
             "Ostrowski adder automaton created and written to file " + adder_file_name);
-    }
-
-    public void createRepresentationAutomaton() throws Exception {
-        resetAutomaton();
-        Automaton repr = new Automaton();
-
-        // Declare the alphabet.
-        repr.alphabetSize = d_max + 1;
-        List<Integer> list = new ArrayList<Integer>();
-        for (int i = 0; i <= d_max; i++) {
-            list.add(i);
-        }
-
-        // Only 1 input to the repr automaton.
-        repr.A.add(list);
-        repr.NS.add(null);
-        repr.d = new ArrayList<TreeMap<Integer, List<Integer>>>();
-        repr.alphabetSize = d_max + 1;
-        repr.Q = 0;
-
-        performReprBfs();
-        repr.Q = this.total_nodes;
-        for(int q = 0; q < this.total_nodes; ++q) {
-            if (node_of_index.containsKey(q)) {
-                NodeState node = node_of_index.get(q);
-                if (node.getState() == 0 && node.getSeenIndex() == 1) {
-                    repr.O.add(1);
-                } else {
-                    repr.O.add(0);
-                }
-            } else {
-                repr.O.add(0);
-            }
-
-            this.state_transitions.putIfAbsent(q, new TreeMap<>());
-            repr.d.add(this.state_transitions.get(q));
-        }
-
-        repr.minimize(false, "", null);
-        repr.canonize();
-
-        boolean zeroStateNeeded =
-            repr.d.stream().anyMatch(
-                tm -> tm.entrySet().stream().anyMatch(
-                    es -> es.getValue().get(0) == 0));
-        if (!zeroStateNeeded) {
-            repr.d.remove(0);
-            repr.O.remove(0);
-            --repr.Q;
-            repr.d.forEach(tm -> {
-                tm.forEach((k, v) -> {
-                    int dest = v.get(0) - 1;
-                    v.set(0, dest);
-                });
-            });
-        }
-
-
-        String repr_file_name =
-            UtilityMethods.get_address_for_custom_bases() + "msd_" + this.name + ".txt";
-        repr.write(repr_file_name);
-        UtilityMethods.printSln(
-            "Ostrowski representation automaton created and written to file " + repr_file_name);
     }
 
     public String toString() {
