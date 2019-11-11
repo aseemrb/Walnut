@@ -39,7 +39,7 @@ public class UtilityMethods {
 	// Colors and prompt.
 	static String COLOR_RESET = "\u001B[0m";
 	static String COLOR_PROMPT = "\u001B[36m";
-	static String PROMPT = "\n" + COLOR_PROMPT + "[Walnut]> " + COLOR_RESET + " ";
+	static String PROMPT = "\n" + COLOR_PROMPT + "[Walnut]" + COLOR_RESET + " ";
 	static String COLOR_FAILED = "\u001B[31m";
 	static String COLOR_PASSED = "\u001B[32m";
 
