@@ -348,7 +348,7 @@ public class Automaton {
         richAlphabet.setEncoder(permutedEncoder);
         setNS(permute(getNS(), labelPermutation));
 
-        this.fa.permuteNfaD(encodedInputPermutation);
+        this.fa.getT().permuteInputs(encodedInputPermutation);
     }
     public void determinizeAndMinimize() {
         Logging.indent();

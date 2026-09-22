@@ -79,6 +79,17 @@ public interface Transitions {
   void setDfaD(List<Int2IntMap> dfaD);
   void addDfaState();
 
+  /**
+   * Renumber states in breadth-first order from the initial state, dropping unreachable states.
+   * Returns the old-to-new state permutation.
+   */
+  Int2IntMap canonize(int initialState);
+
+  /**
+   * Apply a permutation to encoded input labels without changing the transition representation.
+   */
+  void permuteInputs(int[] encodedInputPermutation);
+
   void reduceMemory();
 
   long determineTransitionCount();

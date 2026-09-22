@@ -21,6 +21,7 @@ import Main.WalnutException;
 import it.unimi.dsi.fastutil.ints.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -107,6 +108,74 @@ public class TransitionsNFA implements Transitions {
 
   public void addDfaState() {
     throw new WalnutException("Cannot add DFA transitions to TransitionsNFA; use FA.setDfaTransitions first.");
+  }
+
+  @Override
+  public Int2IntMap canonize(int initialState) {
+    Int2IntMap permutationMap = determinePermutationMap(initialState);
+    int newQ = permutationMap.size();
+
+    List<Int2ObjectRBTreeMap<IntList>> newD = new ArrayList<>(newQ);
+    for (int q = 0; q < newQ; q++) {
+      newD.add(null);
+    }
+    for (int q = 0; q < nfaD.size(); q++) {
+      if (permutationMap.containsKey(q)) {
+        newD.set(permutationMap.get(q), nfaD.get(q));
+      }
+    }
+    nfaD = newD;
+
+    for (Int2ObjectRBTreeMap<IntList> row : nfaD) {
+      Iterator<Int2ObjectMap.Entry<IntList>> entries = row.int2ObjectEntrySet().iterator();
+      while (entries.hasNext()) {
+        Int2ObjectMap.Entry<IntList> entry = entries.next();
+        IntList oldDestination = entry.getValue();
+        IntList newDestination = new IntArrayList(oldDestination.size());
+        for (int p : oldDestination) {
+          if (permutationMap.containsKey(p)) {
+            newDestination.add(permutationMap.get(p));
+          }
+        }
+        if (newDestination.isEmpty()) {
+          entries.remove();
+        } else {
+          row.put(entry.getIntKey(), newDestination);
+        }
+      }
+    }
+    return permutationMap;
+  }
+
+  private Int2IntMap determinePermutationMap(int initialState) {
+    IntArrayFIFOQueue stateQueue = new IntArrayFIFOQueue();
+    stateQueue.enqueue(initialState);
+    Int2IntMap permutationMap = new Int2IntOpenHashMap();
+    permutationMap.put(initialState, 0);
+    int nextState = 1;
+    while (!stateQueue.isEmpty()) {
+      int q = stateQueue.dequeueInt();
+      for (Int2ObjectMap.Entry<IntList> entry : nfaD.get(q).int2ObjectEntrySet()) {
+        for (int p : entry.getValue()) {
+          if (!permutationMap.containsKey(p)) {
+            permutationMap.put(p, nextState++);
+            stateQueue.enqueue(p);
+          }
+        }
+      }
+    }
+    return permutationMap;
+  }
+
+  @Override
+  public void permuteInputs(int[] encodedInputPermutation) {
+    for (int q = 0; q < nfaD.size(); q++) {
+      Int2ObjectRBTreeMap<IntList> permutedRow = new Int2ObjectRBTreeMap<>();
+      for (Int2ObjectMap.Entry<IntList> entry : nfaD.get(q).int2ObjectEntrySet()) {
+        permutedRow.put(encodedInputPermutation[entry.getIntKey()], entry.getValue());
+      }
+      nfaD.set(q, permutedRow);
+    }
   }
 
   /**

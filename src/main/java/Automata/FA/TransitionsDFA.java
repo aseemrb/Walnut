@@ -21,6 +21,7 @@ import Main.WalnutException;
 import it.unimi.dsi.fastutil.ints.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -133,6 +134,65 @@ public class TransitionsDFA implements Transitions {
 
   public void addDfaState() {
     this.dfaD.add(new Int2IntOpenHashMap());
+  }
+
+  @Override
+  public Int2IntMap canonize(int initialState) {
+    Int2IntMap permutationMap = determinePermutationMap(initialState);
+    int newQ = permutationMap.size();
+
+    List<Int2IntMap> newD = new ArrayList<>(newQ);
+    for (int q = 0; q < newQ; q++) {
+      newD.add(null);
+    }
+    for (int q = 0; q < dfaD.size(); q++) {
+      if (permutationMap.containsKey(q)) {
+        newD.set(permutationMap.get(q), dfaD.get(q));
+      }
+    }
+    dfaD = newD;
+
+    for (Int2IntMap row : dfaD) {
+      for (Int2IntMap.Entry entry : row.int2IntEntrySet()) {
+        row.put(entry.getIntKey(), permutationMap.get(entry.getIntValue()));
+      }
+    }
+    return permutationMap;
+  }
+
+  private Int2IntMap determinePermutationMap(int initialState) {
+    IntArrayFIFOQueue stateQueue = new IntArrayFIFOQueue();
+    stateQueue.enqueue(initialState);
+    Int2IntMap permutationMap = new Int2IntOpenHashMap();
+    permutationMap.put(initialState, 0);
+    int nextState = 1;
+    while (!stateQueue.isEmpty()) {
+      int q = stateQueue.dequeueInt();
+      Int2IntMap row = dfaD.get(q);
+      int[] inputs = row.keySet().toIntArray();
+      Arrays.sort(inputs);
+      for (int input : inputs) {
+        int p = row.get(input);
+        if (!permutationMap.containsKey(p)) {
+          permutationMap.put(p, nextState++);
+          stateQueue.enqueue(p);
+        }
+      }
+    }
+    return permutationMap;
+  }
+
+  @Override
+  public void permuteInputs(int[] encodedInputPermutation) {
+    List<Int2IntMap> permutedDfaD = new ArrayList<>(dfaD.size());
+    for (Int2IntMap row : dfaD) {
+      Int2IntMap permutedRow = new Int2IntOpenHashMap(row.size());
+      for (Int2IntMap.Entry entry : row.int2IntEntrySet()) {
+        permutedRow.put(encodedInputPermutation[entry.getIntKey()], entry.getIntValue());
+      }
+      permutedDfaD.add(permutedRow);
+    }
+    dfaD = permutedDfaD;
   }
 
   /**
