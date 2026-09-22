@@ -15,7 +15,6 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Walnut.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package Automata;
 
 import Automata.FA.*;
@@ -32,7 +31,6 @@ import it.unimi.dsi.fastutil.ints.*;
 
 import static Automata.RichAlphabet.MISSING_REDUCED_DIMENSION_ELT;
 import static Main.Prover.*;
-
 /**
  * This class can represent different NFA, DFA, DFAO. (NFAO is not supported.)
  * There are also two special automata: true automaton, which accepts everything, and false automaton, which accepts nothing.
@@ -47,7 +45,6 @@ public class Automaton {
     private List<NumberSystem> NS;
     private List<String> label;
     private boolean labelSorted;  // hen true, labels are sorted lexicographically. It is used in sortLabel() method.
-
     public FA fa; // abstract FA fields
 
     // for use in the combine command, counts how many products we have taken so far, and hence what to set outputs to
@@ -55,9 +52,7 @@ public class Automaton {
 
     // for use in the combine command, allows crossProduct to determine what to set outputs to
     IntList combineOutputs;
-
     public void writeAutomata(String predicate, String outLibrary, String name, boolean isDFAO) {
-        AutomatonWriter.writeToGV(this, Session.getAddressForResult() + name + GV_EXTENSION, predicate, isDFAO);
         String firstAddress = Session.getAddressForResult() + name + TXT_EXTENSION;
         AutomatonWriter.writeToTxtFormat(this, firstAddress);
         // Copy to second location, rather than rewriting.
@@ -67,12 +62,11 @@ public class Automaton {
         } catch (IOException e) {
             Logging.printTruncatedStackTrace(e);
         }
+        AutomatonWriter.writeToGV(this, Session.getAddressForResult() + name + GV_EXTENSION, predicate, isDFAO);
     }
-
     public int determineCombineOutVal(String op) {
       return op.equals(Prover.COMBINE) ? this.combineOutputs.getInt(this.combineIndex) : -1;
     }
-
     /**
      * We would like to give label to inputs.
      * As an example when label = ["a","b","c"], the label of the first, second, and third inputs are a, b, and c respectively.
@@ -84,7 +78,6 @@ public class Automaton {
     public List<String> getLabel() {
         return label;
     }
-
     /*
      * Default constructor. It just initializes the field members.
      */
@@ -95,7 +88,6 @@ public class Automaton {
         setNS(new ArrayList<>());
         setLabel(new ArrayList<>());
     }
-
     /**
      * Initializes a special automaton: true or false.
      * A true automaton, is an automaton that accepts everything. A false automaton is an automaton that accepts nothing.
@@ -108,7 +100,6 @@ public class Automaton {
         fa.setTRUE_FALSE_AUTOMATON(true);
         this.fa.setTRUE_AUTOMATON(truthValue);
     }
-
     /**
      * Takes an address and constructs the automaton represented by the file referred to by the address
      * Note: this returns a DFA (or DFAO).
@@ -118,7 +109,6 @@ public class Automaton {
         this();
         AutomatonReader.readAutomaton(this, address);
     }
-
     /**
      * Returns a deep copy of this automaton.
      */
@@ -135,7 +125,6 @@ public class Automaton {
         clonePartialFields(M);
         return M;
     }
-
     void clonePartialFields(Automaton M) {
         M.richAlphabet = richAlphabet.clone();
         for (int i = 0; i < this.richAlphabet.getA().size(); i++) {
@@ -148,7 +137,6 @@ public class Automaton {
     public static Automaton readAutomatonFromFile(String automataName) {
         return new Automaton(Session.getReadFileForAutomataLibrary(automataName + TXT_EXTENSION));
     }
-
     /**
      * Return a DFA-typed version of this automaton. If this object is not already an AutomatonDFA,
      * the returned value is a DFA copy; the original object is not retyped.
@@ -156,7 +144,6 @@ public class Automaton {
     public AutomatonDFA asDFA() {
         return AutomatonDFA.from(this);
     }
-
         public void normalizeNumberSystems() {
         // set all the number systems to be null.
         boolean switchNS = false;
@@ -171,7 +158,6 @@ public class Automaton {
                 numberSystems.add(ns);
             }
         }
-
         if (switchNS) {
             setAlphabet(false, numberSystems, richAlphabet.getA());
             // always print this
@@ -180,7 +166,6 @@ public class Automaton {
         }
     }
 
-
     public void setAlphabet(boolean isDFAO, List<NumberSystem> numberSystems, List<List<Integer>> alphabet) {
         if (alphabet.size() != richAlphabet.getA().size()) {
             throw new WalnutException("The number of alphabets must match the number of alphabets in the input automaton.");
@@ -188,7 +173,6 @@ public class Automaton {
         if (alphabet.size() != numberSystems.size()) {
             throw new WalnutException("The number of alphabets must match the number of number systems.");
         }
-
         long timeBefore = System.currentTimeMillis();
         if (Logging.shouldPrintDetails()) {
             List<String> nsNames = new ArrayList<>(numberSystems.size());
@@ -198,7 +182,6 @@ public class Automaton {
             }
             Logging.logMessage("setting alphabet to " + nsNames);
         }
-
         Automaton M = clone();
         M.richAlphabet.setA(alphabet);
         M.setNS(numberSystems);
@@ -214,7 +197,6 @@ public class Automaton {
         }
 
         M.forceCanonize();
-
         Logging.indent();
         M.applyAllRepresentationsWithOutput();
         Logging.dedent();
@@ -224,7 +206,6 @@ public class Automaton {
         long timeAfter = System.currentTimeMillis();
         Logging.logMessage("set alphabet complete:" + (timeAfter - timeBefore) + "ms");
     }
-
     /**
      * Rebuild transitions based on new alphabet
      */
@@ -243,12 +224,10 @@ public class Automaton {
         }
         M.getFa().setNfaTransitions(newD);
     }
-
     // TODO: possibly this can just be determined when setA() is called.
     public void determineAlphabetSize() {
         this.fa.setAlphabetSize(richAlphabet.determineAlphabetSize());
     }
-
     // Apply valid representation restrictions
     public void applyAllRepresentations() {
         boolean flag = determineRandomLabel();
@@ -268,7 +247,6 @@ public class Automaton {
             unlabel();
         copy(K);
     }
-
     void applyAllRepresentationsWithOutput() {
         // this can be a word automaton
         boolean flag = determineRandomLabel();
@@ -287,7 +265,6 @@ public class Automaton {
             unlabel();
         copy(K);
     }
-
     private boolean determineRandomLabel() {
         if (!isBound()) {
             randomLabel();
@@ -303,7 +280,6 @@ public class Automaton {
             randomNames.add(Integer.toString(i));}
         setLabel(randomNames);
     }
-
     private void unlabel() {
         setLabel(new ArrayList<>());
         labelSorted = false;
@@ -316,7 +292,6 @@ public class Automaton {
         setLabel(M.getLabel());
         labelSorted = M.labelSorted;
     }
-
 
     /**
      * Sorts states based on their breadth-first order. It also calls sortLabel().
@@ -333,7 +308,6 @@ public class Automaton {
         this.fa.setCanonized(false);
         this.canonize();
     }
-
     /**
      * Sorts inputs based on their labels lexicographically.
      * For example if the labels of the inputs are ["b","c","a"], then the first, second, and third
@@ -353,7 +327,6 @@ public class Automaton {
         if (UtilityMethods.isSorted(this.getLabel())) return;
         List<String> sortedLabel = new ArrayList<>(getLabel());
         Collections.sort(sortedLabel);
-
         /*
          * permutedA is going to hold the alphabet of the sorted inputs.
          * For example if label = ["z","a","c"], and A = [[-1,2],[0,1],[1,2,3]],
@@ -363,7 +336,6 @@ public class Automaton {
         int[] labelPermutation = getLabelPermutation(getLabel(), sortedLabel);
         List<List<Integer>> permutedA = permute(richAlphabet.getA(), labelPermutation);
         IntList permutedEncoder = RichAlphabet.determineEncoder(permutedA);
-
         //For example encoded_input_permutation[2] = 5 means that encoded input 2 becomes 5 after sorting.
         int[] encodedInputPermutation = new int[getAlphabetSize()];
         for (int i = 0; i < getAlphabetSize(); i++) {
@@ -371,7 +343,6 @@ public class Automaton {
             List<Integer> permutedInput = permute(input, labelPermutation);
             encodedInputPermutation[i] = RichAlphabet.encode(permutedInput, permutedA, permutedEncoder);
         }
-
         setLabel(sortedLabel);
         richAlphabet.setA(permutedA);
         richAlphabet.setEncoder(permutedEncoder);
@@ -379,7 +350,6 @@ public class Automaton {
 
         this.fa.permuteNfaD(encodedInputPermutation);
     }
-
     public void determinizeAndMinimize() {
         Logging.indent();
         if (!this.fa.getT().isDeterministic()) {
@@ -396,7 +366,6 @@ public class Automaton {
         this.fa.justMinimize();
         Logging.dedent();
     }
-
     /**
      * Determinize and minimize. Technically, the logging is backwards.
      */
@@ -404,7 +373,6 @@ public class Automaton {
         DeterminizationStrategies.determinize(this, qqq);
         this.fa.justMinimize();
     }
-
     /**
      * Permutes L with regard to permutation.
      * @jn1z notes: However, behavior is *not* what was designed:
@@ -421,7 +389,6 @@ public class Automaton {
         }
         return R;
     }
-
     /**
      * For example if label_permutation[1]=[3], then input number 1 becomes input number 3 after sorting.
      * For example if label = ["z","a","c"], and A = [[-1,2],[0,1],[1,2,3]],
@@ -434,7 +401,6 @@ public class Automaton {
         }
         return labelPermutation;
     }
-
     public void bind(List<String> names) {
         if (fa.isTRUE_FALSE_AUTOMATON() || richAlphabet.getA().size() != names.size()) throw WalnutException.invalidBind();
         setLabel(new ArrayList<>(names));
@@ -442,7 +408,6 @@ public class Automaton {
         fa.setCanonized(false);
         removeSameInputs(this, 0);
     }
-
     /**
      * Checks if any input has the same label as input i. It then removes copies of input i appropriately.
      * So for example an expression like f(a,a) becomes an automaton with one input.
@@ -465,10 +430,8 @@ public class Automaton {
         }
         removeSameInputs(A, i + 1);
     }
-
     private static void reduceDimension(Automaton A, List<Integer> I) {
         List<Integer> reducedDimensionMap = A.richAlphabet.determineReducedDimensionMap(A.getAlphabetSize(), I);
-
         int Q = A.fa.getQ();
         List<Int2ObjectRBTreeMap<IntList>> newD = new ArrayList<>(Q);
         for (int q = 0; q < Q; q++) {
@@ -490,7 +453,6 @@ public class Automaton {
         UtilityMethods.removeIndices(A.getLabel(), I);
     }
 
-
     public boolean isBound() {
       return getLabel() != null && getLabel().size() == richAlphabet.getA().size();
     }
@@ -510,7 +472,6 @@ public class Automaton {
         setLabel(null);
         labelSorted = false;
     }
-
     protected boolean isEmpty() {
         if (fa.isTRUE_FALSE_AUTOMATON()) {
             return !fa.isTRUE_AUTOMATON();
@@ -529,7 +490,6 @@ public class Automaton {
     public void setNS(List<NumberSystem> NS) {
         this.NS = NS;
     }
-
     /**
      * Alphabet Size. For example, if A = [[-1,1],[2,3]], then alphabetSize = 4 and if A = [[-1,1],[0,1,2]], then alphabetSize = 6
      */

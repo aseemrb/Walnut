@@ -16,7 +16,6 @@
  *   along with Walnut.  If not, see <http://www.gnu.org/licenses/>.
  */
 package Automata.Writer;
-
 import Automata.Automaton;
 import Automata.FA.FA;
 import Automata.NumberSystem;
@@ -31,7 +30,6 @@ import java.util.*;
 
 import net.automatalib.automaton.fsa.impl.CompactNFA;
 import net.automatalib.serialization.ba.BAWriter;
-
 public class AutomatonWriter {
     /**
      * Writes automaton to a file given by the address.
@@ -44,7 +42,6 @@ public class AutomatonWriter {
             Logging.printTruncatedStackTrace(e);
         }
     }
-
     public static void writeTxtFormatToStream(Automaton automaton, PrintWriter out) {
         if (automaton.fa.isTRUE_FALSE_AUTOMATON()) {
             out.write(automaton.fa.trueFalseString());
@@ -56,7 +53,6 @@ public class AutomatonWriter {
             }
         }
     }
-
     private static void writeAlphabet(Automaton automaton, PrintWriter out) {
         for (int i = 0; i < automaton.richAlphabet.getA().size(); i++) {
             NumberSystem numberSystem = automaton.getNS().get(i);
@@ -74,7 +70,6 @@ public class AutomatonWriter {
         }
         out.write(System.lineSeparator());
     }
-
     private static void writeState(Automaton automaton, PrintWriter out, int q) {
         out.write(
                 System.lineSeparator() + q + " " +
@@ -90,7 +85,6 @@ public class AutomatonWriter {
             out.write(System.lineSeparator());
         }
     }
-
     /**
      * Writes down this automaton to a .gv file given by the address. It uses the predicate that
      * caused this automaton as the label of this drawing.
@@ -127,37 +121,32 @@ public class AutomatonWriter {
                     else
                         out.println("node [shape = circle, label=\"" + q + "\", fontsize=12]" + q + ";");
                 }
-
                 out.println("node [shape = point ]; qi");
                 out.println("qi -> " + automaton.fa.getQ0() + ";");
-
-                TreeMap<Integer, TreeMap<Integer, List<String>>> transitions = new TreeMap<>();
                 for (int q = 0; q < Q; q++) {
-                    TreeMap<Integer, List<String>> treeMap = new TreeMap<>();
-                    transitions.put(q, treeMap);
+                    TreeMap<Integer, List<String>> transitions = new TreeMap<>();
                     for (Int2ObjectMap.Entry<IntList> entry : automaton.fa.getT().getEntriesNfaD(q)) {
                         for (int dest : entry.getValue()) {
-                            treeMap.putIfAbsent(dest, new ArrayList<>());
-                            treeMap.get(dest).add(
-                                UtilityMethods.toTransitionLabel(automaton.richAlphabet.decode(entry.getIntKey())));
+                            List<String> labels = transitions.get(dest);
+                            if (labels == null) {
+                                labels = new ArrayList<>();
+                                transitions.put(dest, labels);
+                            }
+                            labels.add(UtilityMethods.toTransitionLabel(
+                                automaton.richAlphabet.decode(entry.getIntKey())));
                         }
                     }
-                }
-
-                for (int q = 0; q < Q; q++) {
-                    for (Map.Entry<Integer, List<String>> entry : transitions.get(q).entrySet()) {
+                    for (Map.Entry<Integer, List<String>> entry : transitions.entrySet()) {
                         String transitionLabel = String.join(", ", entry.getValue());
                         out.println( q + " -> " + entry.getKey() + "[ label = \"" + transitionLabel + "\"];");
                     }
                 }
-
                 out.println("}");
             }
         } catch (IOException e) {
             Logging.printTruncatedStackTrace(e);
         }
     }
-
     public static void exportToBA(FA a, String address, boolean isDFAO) {
         if (isDFAO) {
             throw new WalnutException("Can't export DFAO to BA format");
@@ -171,5 +160,4 @@ public class AutomatonWriter {
           Logging.printTruncatedStackTrace(e);
         }
     }
-
 }
