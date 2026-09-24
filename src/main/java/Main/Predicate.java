@@ -118,9 +118,14 @@ public class Predicate {
     /**
      * Anchored match: true iff the matcher's pattern matches starting exactly at index. Equivalent to
      * find(index) on a \G-prefixed pattern, with start()/end() reporting absolute positions.
+     * Transparent bounds let lookbehind (used by the logical-operator pattern) see the text before
+     * index, and non-anchoring bounds keep ^ and $ from matching at the region edges, exactly as
+     * with \G.
      */
     public static boolean matchAt(Matcher m, int index) {
         m.reset();
+        m.useTransparentBounds(true);
+        m.useAnchoringBounds(false);
         return m.region(index, m.regionEnd()).lookingAt();
     }
 
