@@ -1,21 +1,3 @@
-/*	 Copyright 2026 Aseem Baranwal
- *
- * 	 This file is part of Walnut.
- *
- *   Walnut is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   Walnut is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with Walnut.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package Automata.FA;
 
 import Main.Logging;
@@ -39,9 +21,8 @@ import java.util.Deque;
 
 /**
  * The on-the-fly (CCL / CCLS) determinization strategies, implemented with the OTF library.
- * This is the only class in Walnut that references OTF. Keeping that boundary in one place lets the
- * browser build substitute a class that reports these strategies as unavailable, since OTF relies
- * on thread pools that browsers do not provide.
+ * Moved unchanged from DeterminizationStrategies so that this is the only class referencing OTF;
+ * the browser build substitutes it, since OTF relies on thread pools that browsers do not provide.
  */
 final class OtfDeterminizer {
   private OtfDeterminizer() {}
