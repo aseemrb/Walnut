@@ -45,9 +45,9 @@ public class ParseMethods {
     static final Pattern PATTERN_FOR_TRUE_FALSE = Pattern.compile("^\\s*(true|false)\\s*$");
 
     static final Pattern PATTERN_NEXT_ALPHABET_TOKEN = Pattern.compile(
-        "\\s*((((msd|lsd)_(\\d+|\\w+))|((msd|lsd)(\\d+|\\w+))|(msd|lsd)|(\\d+|\\w+))|(\\{\\s*((\\+|\\-)?\\s*\\d+\\s*(\\s*,\\s*(\\+|\\-)?\\s*\\d+)*)\\s*\\}))\\s*");
+        "\\G\\s*((((msd|lsd)_(\\d+|\\w+))|((msd|lsd)(\\d+|\\w+))|(msd|lsd)|(\\d+|\\w+))|(\\{\\s*((\\+|\\-)?\\s*\\d+\\s*(\\s*,\\s*(\\+|\\-)?\\s*\\d+)*)\\s*\\}))\\s*");
 
-    static final Pattern PATTERN_ELEMENT = Pattern.compile("\\s*,?\\s*(((\\+|\\-)?\\s*\\d+)|\\*)");
+    static final Pattern PATTERN_ELEMENT = Pattern.compile("\\G\\s*,?\\s*(((\\+|\\-)?\\s*\\d+)|\\*)");
 
     static final Pattern PATTERN_FOR_STATE_DECLARATION = Pattern.compile("^\\s*(\\d+)\\s+((\\+|\\-)?\\s*\\d+)\\s*$");
 

@@ -70,9 +70,7 @@ public class Predicate {
 
     // Alphanumeric, but not starting with reserved letters A,E,I
     private static final String ALPHANUMERIC = "([a-zA-Z&&[^AEI]]\\w*)";
-    // Patterns are matched with matchAt(), which anchors them at a given index. This replaces the
-    // \G anchor, which some regex engines (including the one used by the browser build) lack.
-    private static final String ANCHOR = "";
+    private static final String ANCHOR = "\\G";
     private static final String WHITESPACE = "\\s*";
     private static final String LEFT_PAREN = "\\(";
     private static final String RIGHT_PAREN = "\\)";
@@ -116,17 +114,13 @@ public class Predicate {
     }
 
     /**
-     * Anchored match: true iff the matcher's pattern matches starting exactly at index. Equivalent to
-     * find(index) on a \G-prefixed pattern, with start()/end() reporting absolute positions.
-     * Transparent bounds let lookbehind (used by the logical-operator pattern) see the text before
-     * index, and non-anchoring bounds keep ^ and $ from matching at the region edges, exactly as
-     * with \G.
+     * find(index) with an explicit reset first. Java specifies that find(int) resets the matcher, so on
+     * the JVM the reset is a no-op; the browser build's regex engine keeps the previous-match state
+     * across find(int) calls, which breaks the \G anchor at any position after the first match.
      */
     public static boolean matchAt(Matcher m, int index) {
         m.reset();
-        m.useTransparentBounds(true);
-        m.useAnchoringBounds(false);
-        return m.region(index, m.regionEnd()).lookingAt();
+        return m.find(index);
     }
 
     private void initializeMatchers() {
