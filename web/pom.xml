@@ -20,8 +20,6 @@
     </properties>
 
     <modules>
-        <!-- Order matters: the shims jar must precede the walnut jar on the TeaVM classpath. -->
-        <module>shims</module>
         <module>app</module>
     </modules>
 </project>

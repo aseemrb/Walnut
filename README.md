@@ -21,7 +21,7 @@ Walnut also runs as a static web app with nothing to install: the JVM core is co
 - `node web/scripts/diff-jvm-web.mjs` runs the integration corpus through both builds and checks that every generated automaton is identical.
 - `.github/workflows/pages.yml` deploys `web/dist` to GitHub Pages on every push to `main`.
 
-The sources live in `web/`: `app/` is the TeaVM entry point and the bridge to browser storage, `shims/` holds browser-only replacements for a few third-party classes that need threads, and `site/` is the page.
+The sources live in `web/`: `web/app` is the TeaVM entry point, the bridge to browser storage, and two browser substitutes (declared in `WalnutSubstitutionPolicy`) for classes that need threads or classpath scanning; `web/site` is the page. The CCL and CCLS determinization strategies are not available in the browser, since the OTF library behind them uses thread pools; every other command works. `build.sh -t` also compiles the browser version, so core changes that break it are caught locally.
 
 # Help documentation
 

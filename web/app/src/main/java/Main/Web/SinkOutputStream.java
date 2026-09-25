@@ -1,4 +1,4 @@
-/*	 Copyright 2025 John Nicol
+/*	 Copyright 2026 Aseem Baranwal
  *
  * 	 This file is part of Walnut.
  *
@@ -15,6 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Walnut.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 
 package Main.Web;
 
