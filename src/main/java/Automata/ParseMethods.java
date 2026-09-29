@@ -18,6 +18,8 @@
 
 package Automata;
 
+import Main.Predicate;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,7 +89,7 @@ public class ParseMethods {
             List<NumberSystem> bases) {
         Matcher m = PATTERN_NEXT_ALPHABET_TOKEN.matcher(s);
         int index = 0;
-        while (m.find(index)) {
+        while (Predicate.matchAt(m, index)) {
             if (m.group(ALPHABET_SET) != null) {
                 List<Integer> list = new ArrayList<>();
                 parseList(m.group(ALPHABET_SET), list);
@@ -155,7 +157,7 @@ public class ParseMethods {
     public static void parseList(String s, List<Integer> list) {
         int index = 0;
         Matcher m = PATTERN_ELEMENT.matcher(s);
-        while (m.find(index)) {
+        while (Predicate.matchAt(m, index)) {
             String group1 = m.group(1);
             if (group1.equals("*")) list.add(null);
             else list.add(UtilityMethods.parseInt(group1));

@@ -5,6 +5,7 @@ All notable changes to Walnut will be documented here. Format is based on [Keep 
 ## [Walnut 8] - in progress
 
 ### Added
+- Browser version of Walnut: the core is compiled to JavaScript with TeaVM and served as a static site (see `web/` and the "Walnut in the browser" section of the README). Files persist in browser storage and `.gv` output is rendered in the page.
 - BigInteger support for parameters [#2](https://github.com/Walnut-Theorem-Prover/Walnut/issues/2). Note: this does not allow arbitrarily-large Word Automaton outputs.
 - `morphism` command now allows symbols outside of the range of 0-9 (for both domain and range) [#43](https://github.com/Walnut-Theorem-Prover/Walnut/issues/43)
 - `def` and `eval` commands now allow an optional "headless" mode, if you don't wish to create the automaton
@@ -19,6 +20,8 @@ All notable changes to Walnut will be documented here. Format is based on [Keep 
 - Build process now uses Maven, thanks to [Markus Frohme](https://github.com/mtf90)
 - Differentiate NFAs and DFAs in logic [#25](https://github.com/Walnut-Theorem-Prover/Walnut/issues/25)
 - Switch to standard logging framework [#23](https://github.com/Walnut-Theorem-Prover/Walnut/issues/23)
+- Logging no longer depends on logback/slf4j; console and per-command log files are written directly, with the same output.
+- Predicate tokenizer resets its matchers explicitly before each anchored `find(index)` (a no-op on the JVM, needed by the browser build's regex engine).
 
 ## [Walnut 7.1] - 2025-12-02 - Author: John Nicol
 
