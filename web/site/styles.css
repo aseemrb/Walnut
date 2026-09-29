@@ -256,6 +256,31 @@ details.frames .line { color: var(--muted); font-size: 12px; padding-left: 16px;
   overflow: auto;
 }
 .prompt textarea:focus { border-color: var(--accent); outline: none; }
+.prompt .actions { display: inline-flex; }
+.prompt .actions button { min-width: 64px; }
+
+/* activity indicator at the bottom of a running command's box */
+.working {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 12px 10px 30px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  flex-shrink: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spinner { animation: spin 0.9s linear infinite; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* files */
 .files {

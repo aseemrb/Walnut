@@ -273,16 +273,22 @@ function beginRun(command) {
   entry.appendChild(head);
   const outEl = el('div', 'out');
   entry.appendChild(outEl);
+  const loader = el('div', 'working');
+  loader.appendChild(el('span', 'spinner'));
+  loader.appendChild(el('span', 'working-text', 'Running'));
+  entry.appendChild(loader);
   transcript.appendChild(entry);
   updateFoldLabel();
   scrollToBottom();
   const kind = (command.match(/^(?:\[[^\]]*\]\s*)*(\w+)/) || [])[1] || '';
-  running = { entry, outEl, brief, command, kind, started: performance.now(), echoStripped: false, partial: '', pendingRule: false, group: null, verdicts: 0 };
+  running = { entry, outEl, brief, loader, command, kind, started: performance.now(), echoStripped: false, partial: '', pendingRule: false, group: null, verdicts: 0 };
   running.timer = setInterval(() => {
-    setStatus('busy', `Running, ${((performance.now() - running.started) / 1000).toFixed(0)} s`);
+    const secs = ((performance.now() - running.started) / 1000).toFixed(0);
+    setStatus('busy', `Running, ${secs} s`);
+    loader.lastChild.textContent = `Running, ${secs} s`;
   }, 1000);
   setStatus('busy', 'Running');
-  runBtn.disabled = true;
+  runBtn.hidden = true;
   stopBtn.hidden = false;
   input.disabled = true;
 }
@@ -290,9 +296,10 @@ function beginRun(command) {
 function finishRun(msg) {
   if (!running) return;
   clearInterval(running.timer);
-  const { entry, outEl, brief } = running;
+  const { entry, outEl, brief, loader } = running;
   const ms = msg.ms ?? (performance.now() - running.started);
   flushOutput();
+  loader.remove();
   if (msg.error) outEl.appendChild(el('pre', 'err', msg.error));
   brief.appendChild(el('span', 'meta', ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`));
   const changed = msg.changes ? msg.changes.dirty.filter((p) => !p.endsWith('_log.txt') && p !== 'Result/global_log.txt') : [];
@@ -310,7 +317,7 @@ function finishRun(msg) {
   }
   if (!outEl.childElementCount) entry.classList.add('empty');
   running = null;
-  runBtn.disabled = false;
+  runBtn.hidden = false;
   stopBtn.hidden = true;
   input.disabled = false;
   setStatus(ready ? 'ready' : 'error', ready ? 'Ready' : 'Prover stopped');
