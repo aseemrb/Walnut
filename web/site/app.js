@@ -12,6 +12,7 @@ const viewer = $('viewer');
 const HISTORY_KEY = 'walnut.history';
 const THEME_KEY = 'walnut.theme';
 const OPEN_DIRS_KEY = 'walnut.openDirs';
+const HOME_PREFIX = '/walnut/'; // the prover's internal home directory, stripped from paths in output
 
 let worker = null;
 let ready = false;
@@ -123,7 +124,122 @@ function clearTranscript() {
   for (const child of [...transcript.children]) {
     if (!running || child !== running.entry) child.remove();
   }
-  if (running) running.outEl.textContent = '';
+  if (running) { running.outEl.textContent = ''; running.partial = ''; running.pendingRule = false; running.group = null; }
+}
+
+// ---- output rendering --------------------------------------------------------------------------
+// Output is rendered line by line into typed elements. The patterns below match formats that each
+// come from one place in the prover: eval results ("____" then TRUE/FALSE), evaluation steps
+// ("expr:N states - T ms", indented by depth), verbose steps ("computing X"), the total-time
+// footer, error messages and Java stack traces, and the commands echoed by "load". The output of
+// "test" and "help" is recognized by the command that produced it.
+const VERDICT = /^(TRUE|FALSE)$/;
+const STEP = /^(\s*)(.+?):\s*(\d+) states(?: - (\d+)(ms| states))?\.?$/;
+const VERBOSE = /^(\s*)(computing|computed|comparing|compared|quantifying|quantified|fixing|fixed|totalizing|totalized|Minimizing|Determinizing|Applying|Calculating) (.*)$/;
+const TOTAL = /^Total computation time: (\d+)ms\.?$/;
+const ERROR = /(: char at \d+$|^File does not exist: |^Undefined token|^Unbalanced|^Metacommands |^No such command|^Invalid command|^Operator .* requires|^operator .* requires|^Mismatch |^Macro does not exist|^Automaton .* does not|^A morphism |^[\w.$]*(Exception|Error)\b)/;
+const FRAME = /^\s+at [\w.$<>/]+\(/;
+const COMMAND_WORDS = 'eval|def|macro|reg|load|ost|exit|quit|cls|clear|combine|morphism|promote|image|inf|split|rsplit|join|test|transduce|reverse|minimize|convert|fixleadzero|fixtrailzero|alphabet|union|intersect|star|concat|rightquo|leftquo|describe|export|help';
+const ECHOED_COMMAND = new RegExp(`^(?:\\[[^\\]]*\\]\\s*)*(?:${COMMAND_WORDS})\\b.*[;:]$`);
+const HELP_TITLE = /^=== (.*) ===$/;
+const RULE = /^=+$/;
+const BIG_STATES = 100000;
+
+function addLine(cls, text) {
+  const line = el('div', cls ? `line ${cls}` : 'line', text);
+  running.outEl.appendChild(line);
+  running.group = null;
+  return line;
+}
+
+function stepGroup() {
+  if (!running.group) {
+    const details = el('details', 'steps');
+    details.open = true;
+    details.appendChild(el('summary', null, 'steps'));
+    running.outEl.appendChild(details);
+    running.group = { details, count: 0 };
+  }
+  running.group.count++;
+  running.group.details.firstChild.textContent = `${running.group.count} step${running.group.count === 1 ? '' : 's'}`;
+  return running.group.details;
+}
+
+function addStep(depth, label, states, extra, unit, verbose) {
+  const line = el('div', `line step${verbose ? ' verbose' : ''}`);
+  line.style.paddingLeft = `${depth * 16}px`;
+  if (depth) line.style.backgroundSize = `${depth * 16}px 100%`;
+  line.appendChild(el('span', 'expr', label));
+  if (states !== undefined) {
+    const n = Number(states);
+    const stat = el('span', `stat${n >= BIG_STATES ? ' big' : ''}`);
+    stat.append(`${n.toLocaleString()} state${n === 1 ? '' : 's'}`);
+    if (extra !== undefined) stat.append(unit === 'ms' ? ` · ${extra} ms` : ` × ${Number(extra).toLocaleString()} states`);
+    line.appendChild(stat);
+  }
+  stepGroup().appendChild(line);
+}
+
+function addFrame(text) {
+  const last = running.outEl.lastChild;
+  let frames = last && last.classList && last.classList.contains('frames') ? last : null;
+  if (!frames) {
+    frames = el('details', 'frames');
+    frames.appendChild(el('summary', null, 'stack trace'));
+    running.outEl.appendChild(frames);
+    running.group = null;
+  }
+  frames.appendChild(el('div', 'line', text.trim()));
+}
+
+function addTestValue(text) {
+  const last = running.outEl.lastChild;
+  let row = last && last.classList && last.classList.contains('test-values') ? last : null;
+  if (!row) { row = el('div', 'test-values'); running.outEl.appendChild(row); running.group = null; }
+  row.appendChild(el('span', 'chip', text));
+  row.dataset.count = row.childElementCount;
+}
+
+function emitLine(line) {
+  if (running.pendingRule) {
+    running.pendingRule = false;
+    if (VERDICT.test(line)) {
+      addLine('verdict-line').appendChild(el('span', `verdict ${line.toLowerCase()}`, line));
+      running.verdicts++;
+      if (running.verdicts <= 4) running.brief.appendChild(el('span', `verdict ${line.toLowerCase()}`, line));
+      else if (running.verdicts === 5) running.brief.appendChild(el('span', 'more', '…'));
+      return;
+    }
+    addLine(null, '____');
+  }
+  if (line === '____') { running.pendingRule = true; return; }
+  const cleaned = line.split(HOME_PREFIX).join('');
+  let m;
+  if (FRAME.test(line)) { addFrame(line); return; }
+  if (ERROR.test(cleaned)) { addLine('error', cleaned.trim()); return; }
+  if (running.kind === 'help') {
+    if ((m = HELP_TITLE.exec(line))) { addLine('help-title', m[1]); return; }
+    if (RULE.test(line)) return;
+    addLine(/^\t/.test(line) ? 'help-code' : 'help-text', line.replace(/^\t/, ''));
+    return;
+  }
+  if ((m = TOTAL.exec(line))) { addLine('total', `Prover time ${m[1]} ms`); return; }
+  if ((m = STEP.exec(line))) { addStep(m[1].length, m[2], m[3], m[4], m[5], false); return; }
+  if ((m = VERBOSE.exec(line))) { addStep(m[1].length, `${m[2]} ${m[3]}`, undefined, undefined, undefined, true); return; }
+  if (ECHOED_COMMAND.test(line)) { addLine('cmd', line); return; }
+  if (running.kind === 'test') { if (line.trim()) addTestValue(line.trim()); return; }
+  addLine(null, line);
+}
+
+function renderChunk(text) {
+  const lines = (running.partial + text).split('\n');
+  running.partial = lines.pop();
+  for (const line of lines) emitLine(line);
+}
+
+function flushOutput() {
+  if (running.pendingRule) { running.pendingRule = false; addLine(null, '____'); }
+  if (running.partial) { emitLine(running.partial); running.partial = ''; }
 }
 
 function appendOutput(text) {
@@ -142,24 +258,37 @@ function appendOutput(text) {
       if (!text) return;
     }
   }
-  running.outEl.textContent += text;
+  renderChunk(text);
   const isNearBottom = transcript.scrollHeight - transcript.scrollTop - transcript.clientHeight < 80;
   if (isNearBottom) scrollToBottom();
 }
 
 function beginRun(command) {
-  const entry = el('div', 'entry');
-  entry.appendChild(el('div', 'cmd', command));
-  const outEl = el('pre', 'out');
+  const entry = el('details', 'entry');
+  entry.open = true;
+  const head = el('summary', 'head');
+  head.appendChild(el('span', 'cmd', command));
+  const brief = el('span', 'brief');
+  head.appendChild(brief);
+  entry.appendChild(head);
+  const outEl = el('div', 'out');
   entry.appendChild(outEl);
+  const loader = el('div', 'working');
+  loader.appendChild(el('span', 'spinner'));
+  loader.appendChild(el('span', 'working-text', 'Running'));
+  entry.appendChild(loader);
   transcript.appendChild(entry);
+  updateFoldLabel();
   scrollToBottom();
-  running = { entry, outEl, command, started: performance.now(), echoStripped: false };
+  const kind = (command.match(/^(?:\[[^\]]*\]\s*)*(\w+)/) || [])[1] || '';
+  running = { entry, outEl, brief, loader, command, kind, started: performance.now(), echoStripped: false, partial: '', pendingRule: false, group: null, verdicts: 0 };
   running.timer = setInterval(() => {
-    setStatus('busy', `Running, ${((performance.now() - running.started) / 1000).toFixed(0)} s`);
+    const secs = ((performance.now() - running.started) / 1000).toFixed(0);
+    setStatus('busy', `Running, ${secs} s`);
+    loader.lastChild.textContent = `Running, ${secs} s`;
   }, 1000);
   setStatus('busy', 'Running');
-  runBtn.disabled = true;
+  runBtn.hidden = true;
   stopBtn.hidden = false;
   input.disabled = true;
 }
@@ -167,12 +296,12 @@ function beginRun(command) {
 function finishRun(msg) {
   if (!running) return;
   clearInterval(running.timer);
-  const { entry, outEl } = running;
+  const { entry, outEl, brief, loader } = running;
   const ms = msg.ms ?? (performance.now() - running.started);
-  if (!outEl.textContent) outEl.remove();
-  if (msg.error) entry.appendChild(el('pre', 'err', msg.error));
-  const meta = el('div', 'meta', ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`);
-  entry.appendChild(meta);
+  flushOutput();
+  loader.remove();
+  if (msg.error) outEl.appendChild(el('pre', 'err', msg.error));
+  brief.appendChild(el('span', 'meta', ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`));
   const changed = msg.changes ? msg.changes.dirty.filter((p) => !p.endsWith('_log.txt') && p !== 'Result/global_log.txt') : [];
   if (changed.length) {
     const line = el('div', 'files-changed');
@@ -184,10 +313,11 @@ function finishRun(msg) {
       b.addEventListener('click', () => openFile(p));
       line.appendChild(b);
     });
-    entry.appendChild(line);
+    outEl.appendChild(line);
   }
+  if (!outEl.childElementCount) entry.classList.add('empty');
   running = null;
-  runBtn.disabled = false;
+  runBtn.hidden = false;
   stopBtn.hidden = true;
   input.disabled = false;
   setStatus(ready ? 'ready' : 'error', ready ? 'Ready' : 'Prover stopped');
@@ -241,6 +371,21 @@ form.addEventListener('submit', (e) => {
   beginRun(text);
   worker.postMessage({ type: 'run', id: nextId++, text });
 });
+
+const foldBtn = $('fold');
+function updateFoldLabel() {
+  const boxes = transcript.querySelectorAll('details.entry');
+  const anyOpen = [...boxes].some((d) => d.open);
+  foldBtn.textContent = anyOpen ? 'Collapse outputs' : 'Expand outputs';
+  foldBtn.hidden = boxes.length === 0;
+}
+foldBtn.addEventListener('click', () => {
+  const boxes = [...transcript.querySelectorAll('details.entry')];
+  const anyOpen = boxes.some((d) => d.open);
+  for (const d of boxes) d.open = !anyOpen;
+  updateFoldLabel();
+});
+transcript.addEventListener('toggle', updateFoldLabel, true);
 
 stopBtn.addEventListener('click', () => {
   if (!running) return;
@@ -331,6 +476,7 @@ $('reset').addEventListener('click', async () => {
   await call('reset').catch(() => {});
   worker.terminate();
   transcript.replaceChildren();
+  updateFoldLabel();
   addNote('Reset to the default libraries.');
   startWorker();
 });
